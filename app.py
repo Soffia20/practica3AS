@@ -305,174 +305,174 @@ def preferencias():
 #         print("Error eliminando renta:", e)
 #         return make_response(jsonify({"error": str(e)}), 500)
 
-# @app.route("/clientes")
-# def clientes():
-#     return render_template("clientes.html")
+@app.route("/clientes")
+def clientes():
+    return render_template("clientes.html")
 
-# @app.route("/tbodyClientes")
-# def tbodyClientes():
-#     try:
-#         con = con_pool.get_connection()
-#         cursor = con.cursor(dictionary=True)
+@app.route("/tbodyClientes")
+def tbodyClientes():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
 
-#         sql = """
-#         SELECT idCliente, nombreCliente, telefono, correoElectronico
-#         FROM clientes
-#         ORDER BY idCliente DESC
-#         LIMIT 10 OFFSET 0
-#         """
+        sql = """
+        SELECT idCliente, nombreCliente, telefono, correoElectronico
+        FROM clientes
+        ORDER BY idCliente DESC
+        LIMIT 10 OFFSET 0
+        """
 
-#         cursor.execute(sql)
-#         registros = cursor.fetchall()
+        cursor.execute(sql)
+        registros = cursor.fetchall()
 
-#         # Aquí puedes devolver HTML renderizado o JSON
-#         return render_template("tbodyClientes.html", clientes=registros)
+        # Aquí puedes devolver HTML renderizado o JSON
+        return render_template("tbodyClientes.html", clientes=registros)
 
-#     except Exception as e:
-#         print("Error en /tbodyClientes:", e)
-#         return make_response(jsonify({"error": str(e)}), 500)
+    except Exception as e:
+        print("Error en /tbodyClientes:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
 
-#     finally:
-#         if cursor:
-#             cursor.close()
-#         if con and con.is_connected():
-#             con.close()
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 
-# @app.route("/clientes/buscar", methods=["GET"])
-# def buscarClientes():
-#     con = con_pool.get_connection()
+@app.route("/clientes/buscar", methods=["GET"])
+def buscarClientes():
+    con = con_pool.get_connection()
 
-#     args     = request.args
-#     busqueda = args["busqueda"]
-#     busqueda = f"%{busqueda}%"
+    args     = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
     
-#     cursor = con.cursor(dictionary=True)
-#     sql    = """
-#     SELECT idCliente,
-#            nombreCliente,
-#            telefono,
-#            correoElectronico
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idCliente,
+           nombreCliente,
+           telefono,
+           correoElectronico
 
-#     FROM clientes
+    FROM clientes
 
-#     WHERE nombreCliente LIKE %s
-#     OR    telefono          LIKE %s
-#     OR    correoElectronico     LIKE %s
+    WHERE nombreCliente LIKE %s
+    OR    telefono          LIKE %s
+    OR    correoElectronico     LIKE %s
 
-#     ORDER BY idCliente DESC
+    ORDER BY idCliente DESC
 
-#     LIMIT 10 OFFSET 0
-#     """
-#     val    = (busqueda, busqueda, busqueda)
+    LIMIT 10 OFFSET 0
+    """
+    val    = (busqueda, busqueda, busqueda)
 
-#     try:
-#         cursor.execute(sql, val)
-#         registros = cursor.fetchall()
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
 
-#         # Si manejas fechas y horas
-#         """
-#         for registro in registros:
-#             fecha_hora = registro["Fecha_Hora"]
+        # Si manejas fechas y horas
+        """
+        for registro in registros:
+            fecha_hora = registro["Fecha_Hora"]
 
-#             registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
-#             registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
-#             registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
-#         """
+            registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+            registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
+            registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
+        """
 
-#     except mysql.connector.errors.ProgrammingError as error:
-#         print(f"Ocurrió un error de programación en MySQL: {error}")
-#         registros = []
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
 
-#     finally:
-#         cursor.close()
+    finally:
+        cursor.close()
 
-#     return make_response(jsonify(registros))
+    return make_response(jsonify(registros))
 
-# @app.route("/cliente", methods=["POST"])
-# # Usar cuando solo se quiera usar CORS en rutas específicas
-# # @cross_origin()
-# def guardarCliente():
-#     con = con_pool.get_connection()
+@app.route("/cliente", methods=["POST"])
+# Usar cuando solo se quiera usar CORS en rutas específicas
+# @cross_origin()
+def guardarCliente():
+    con = con_pool.get_connection()
 
-#     idCliente = request.form.get("idCliente")
-#     nombre      = request.form["nombreCliente"]
-#     telefono      = request.form["telefono"]
-#     correoElectronico = request.form["correoElectronico"]
+    idCliente = request.form.get("idCliente")
+    nombre      = request.form["nombreCliente"]
+    telefono      = request.form["telefono"]
+    correoElectronico = request.form["correoElectronico"]
     
-#     # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
+    # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
     
-#     cursor = con.cursor()
+    cursor = con.cursor()
 
-#     if idCliente:
-#         sql = """
-#         UPDATE clientes
+    if idCliente:
+        sql = """
+        UPDATE clientes
 
-#         SET nombreCliente = %s,
-#             telefono          = %s,
-#             correoElectronico     = %s
+        SET nombreCliente = %s,
+            telefono          = %s,
+            correoElectronico     = %s
 
-#         WHERE idCliente = %s
-#         """
-#         val = (nombre, telefono, correoElectronico, idCliente)
-#     else:
-#         sql = """
-#         INSERT INTO clientes (nombreCliente, telefono, correoElectronico)
-#                     VALUES    (%s,          %s,      %s)
-#         """
-#         val =                 (nombre, telefono, correoElectronico)
+        WHERE idCliente = %s
+        """
+        val = (nombre, telefono, correoElectronico, idCliente)
+    else:
+        sql = """
+        INSERT INTO clientes (nombreCliente, telefono, correoElectronico)
+                    VALUES    (%s,          %s,      %s)
+        """
+        val =                 (nombre, telefono, correoElectronico)
     
-#     cursor.execute(sql, val)
-#     con.commit()
-#     con.close()
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
 
-#     pusherClientes()
+    pusherClientes()
     
-#     return make_response(jsonify({}))
+    return make_response(jsonify({}))
 
-# @app.route("/cliente/<int:id>")
-# def editarClientes(id):
-#     con = con_pool.get_connection()
+@app.route("/cliente/<int:id>")
+def editarClientes(id):
+    con = con_pool.get_connection()
     
-#     cursor = con.cursor(dictionary=True)
-#     sql    = """
-#     SELECT idCliente, nombreCliente, telefono, correoElectronico
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idCliente, nombreCliente, telefono, correoElectronico
 
-#     FROM clientes
+    FROM clientes
 
-#     WHERE idCliente = %s
-#     """
-#     val    = (id,)
+    WHERE idCliente = %s
+    """
+    val    = (id,)
 
-#     cursor.execute(sql, val)
-#     registros = cursor.fetchall()
-#     con.close()
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
 
-#     return make_response(jsonify(registros))
+    return make_response(jsonify(registros))
 
-# @app.route("/clientes/eliminar", methods=["POST"])
-# def eliminarCliente():
-#     try:
-#         con = con_pool.get_connection()
-#         cursor = con.cursor()
+@app.route("/clientes/eliminar", methods=["POST"])
+def eliminarCliente():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor()
 
-#         idCliente = request.form.get("id")
+        idCliente = request.form.get("id")
 
-#         cursor = con.cursor()
-#         sql = "DELETE FROM clientes WHERE idCliente = %s"
-#         val = (idCliente,)
+        cursor = con.cursor()
+        sql = "DELETE FROM clientes WHERE idCliente = %s"
+        val = (idCliente,)
 
-#         cursor.execute(sql, val)
-#         con.commit()
-#         con.close()
+        cursor.execute(sql, val)
+        con.commit()
+        con.close()
 
-#         pusherClientes()
+        pusherClientes()
 
-#         return make_response(jsonify({"status": "ok"}))
+        return make_response(jsonify({"status": "ok"}))
 
-#     except Exception as e:
-#         print("Error eliminando cliente:", e)
-#         return make_response(jsonify({"error": str(e)}), 500)
+    except Exception as e:
+        print("Error eliminando cliente:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
 
 # # TRAJES
 # @app.route("/trajes")
@@ -628,3 +628,4 @@ def preferencias():
 #         con.close()
 
 #     return make_response(jsonify(registros))
+
