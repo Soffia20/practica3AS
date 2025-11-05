@@ -101,7 +101,7 @@ app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootS
     }
     $rootScope.preferencias = preferencias
     $SesionService.setUsuario(preferencias.usuario)
-    $SesionService.setCorreo(preferencias.correo)
+    $SesionService.setTipo(preferencias.tipo)
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         $rootScope.spinnerGrow = false
@@ -626,4 +626,5 @@ app.controller("laboratorioCtrl", function ($scope, SesionService) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
