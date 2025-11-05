@@ -102,8 +102,8 @@ def iniciarSesion():
     registros = cursor.fetchall()
     if cursor:
         cursor.close()
-    if con and con.is_connected():
-        con.close()
+    # if con and con.is_connected():
+    #     con.close()
 
     session["login"]      = False
     session["login-usr"]  = None
