@@ -146,7 +146,8 @@ def tbodylaboratorio():
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT Id_Hora,
-           Hora
+           Hora,
+           Categoria
     FROM Hora_Lab
     ORDER BY Id_Hora DESC
     LIMIT 10 OFFSET 0
