@@ -16,18 +16,18 @@ con_pool = mysql.connector.pooling.MySQLConnectionPool(
     password="F1O[QWJ$@2x"
 )
 
-def pusherLab():
-    import pusher
-    pusher_lab = pusher.Pusher(
-    app_id = "2073359"
-    key = "d60a574067b9a7511165"
-    secret = "856804a6e7e433ae7a3e"
-    cluster = "us2"
-    ssl=True
-    )
+# def pusherLab():
+#     import pusher
+#     pusher_lab = pusher.Pusher(
+#     app_id = "2073359"
+#     key = "d60a574067b9a7511165"
+#     secret = "856804a6e7e433ae7a3e"
+#     cluster = "us2"
+#     ssl=True
+#     )
     
-    pusher_client.trigger("canalLab", "eventoLab", {"message": "Hola Mundo!"})
-    return make_response(jsonify({}))
+#     pusher_client.trigger("canalLab", "eventoLab", {"message": "Hola Mundo!"})
+#     return make_response(jsonify({}))
 
 def login_requerido(fun):
     @wraps(fun)
@@ -97,3 +97,4 @@ def preferencias():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
