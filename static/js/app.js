@@ -67,7 +67,7 @@ app.config(function ($routeProvider, $locationProvider) {
         redirectTo: "/"
     })
 })
-app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootScope, $location, $timeout, SesionService) {
+app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootScope, $location, $timeout, $SesionService) {
     $rootScope.slide             = ""
     $rootScope.spinnerGrow       = false
     $rootScope.sendingRequest    = false
@@ -100,8 +100,8 @@ app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootS
         preferencias = {}
     }
     $rootScope.preferencias = preferencias
-    SesionService.setUsuario(preferencias.usuario)
-    SesionService.setCorreo(preferencias.correo)
+    $SesionService.setUsuario(preferencias.usuario)
+    $SesionService.setCorreo(preferencias.correo)
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         $rootScope.spinnerGrow = false
@@ -626,4 +626,3 @@ app.controller("laboratorioCtrl", function ($scope, SesionService) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
