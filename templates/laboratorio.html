@@ -38,12 +38,24 @@
     </table>
 </div>
 <div class="row">
-  <div class="col-md-6 col-lg-4 col-xl-3 col-xxl-3" ng-repeat="sucursal in categoriaAM.laboratorio">
+  <div class="col-md-6 col-lg-4 col-xl-3 col-xxl-3" ng-repeat="laboratorio in categoriaAM.laboratorio">
     <h5 class="text-center">{{ "{{categoriaAM.titulo}}" }}</h5>
     <div class="card text-bg-info mb-3">
-      <div class="card-header">Laboratorio</div>
+      <div class="card-header">Horario de Laboratorio</div>
       <div class="card-body">
-        <h5 class="card-title">{{ "{{sucursal.Hora}}" }}</h5>
+        <h5 class="card-title">{{ "{{laboratorio.Hora}}" }}</h5>
+        <p class="card-text"></p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 col-lg-4 col-xl-3 col-xxl-3" ng-repeat="laboratorio in categoriaPM.laboratorio">
+    <h5 class="text-center">{{ "{{categoriaPM.titulo}}" }}</h5>
+    <div class="card text-bg-info mb-3">
+      <div class="card-header">Horario de Laboratorio</div>
+      <div class="card-body">
+        <h5 class="card-title">{{ "{{laboratorio.Hora}}" }}</h5>
         <p class="card-text"></p>
       </div>
     </div>
