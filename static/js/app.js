@@ -568,7 +568,7 @@ app.service("SesionService", function() {
         return this.usuario;
     };
 
-    this.setTipo = function(correo) {
+    this.setTipo = function(tipo) {
         this.tipo = tipo;
     };
     this.getTipo = function() {
@@ -658,3 +658,4 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
