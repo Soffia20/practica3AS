@@ -129,7 +129,7 @@ def cerrarSesion():
 def preferencias():
     return make_response(jsonify({
         "usuario": session.get("login-usr"),
-        "correo": session.get("login-tipo", 2)
+        "tipo": session.get("login-tipo", 2)
     }))
 
 # sucursal
@@ -186,4 +186,5 @@ def buscarlaboratorio():
         cursor.close()
 
     return make_response(jsonify(registros))
+
 
