@@ -27,19 +27,19 @@ con = mysql.connector.connect(
 app = Flask(__name__)
 CORS(app)
 
-def pusherClientes():
-    import pusher
+# def pusherClientes():
+#     import pusher
     
-    pusher_client = pusher.Pusher(
-        app_id='2047513',
-        key='bf79fc5f8fe969b1839e',
-        secret='9b73ac4b30f41a28c732',
-        cluster='us2',
-        ssl=True
-    )
+#     pusher_client = pusher.Pusher(
+#         app_id='2047513',
+#         key='bf79fc5f8fe969b1839e',
+#         secret='9b73ac4b30f41a28c732',
+#         cluster='us2',
+#         ssl=True
+#     )
     
-    pusher_client.trigger("canalClientes", "eventoClientes", {"message": "Hola Mundo!"})
-    return make_response(jsonify({}))
+#     pusher_client.trigger("canalClientes", "eventoClientes", {"message": "Hola Mundo!"})
+#     return make_response(jsonify({}))
 
 @app.route("/")
 def index():
@@ -282,5 +282,6 @@ def eliminarCliente():
     except Exception as e:
         print("Error eliminando cliente:", e)
         return make_response(jsonify({"error": str(e)}), 500)
+
 
 
