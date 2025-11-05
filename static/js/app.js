@@ -51,25 +51,6 @@ let diffMs = 0
 
 const app = angular.module("angularjsApp", ["ngRoute"])
 
-app.service("SesionService", function() {
-    this.usuario = null
-    this.correo = null
-
-    this.setUsuario = function(usuario) {
-        this.usuario = usuario;
-    };
-    this.getUsuario = function() {
-        return this.usuario;
-    };
-
-    this.setCorreo = function(correo) {
-        this.correo = correo;
-    };
-    this.getCorreo = function() {
-        return this.correo;
-    };
-});
-
 app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("")
 
@@ -575,6 +556,25 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
         disableAll()
     })
 })
+
+app.service("SesionService", function() {
+    this.usuario = null
+    this.correo = null
+
+    this.setUsuario = function(usuario) {
+        this.usuario = usuario;
+    };
+    this.getUsuario = function() {
+        return this.usuario;
+    };
+
+    this.setCorreo = function(correo) {
+        this.correo = correo;
+    };
+    this.getCorreo = function() {
+        return this.correo;
+    };
+});
 
 app.controller("laboratorioCtrl", function ($scope, SesionService) {
     $scope.SesionService = SesionService;
