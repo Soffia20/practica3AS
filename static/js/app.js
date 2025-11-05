@@ -58,9 +58,9 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/login",
         controller: "loginCtrl"
     })
-    .when("/sucursal", {
-        templateUrl: "/sucursal",
-        controller: "sucursalCtrl"
+    .when("/laboratorio", {
+        templateUrl: "/laboratorio",
+        controller: "laboratorioCtrl"
     })
     .otherwise({
         redirectTo: "/"
@@ -73,7 +73,7 @@ app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootS
     $rootScope.incompleteRequest = false
     $rootScope.completeRequest   = false
     $rootScope.login             = localStorage.getItem("login")
-    const defaultRouteAuth       = "#/sucursal"
+    const defaultRouteAuth       = "#/laboratorio"
     let timesChangesSuccessRoute = 0
 
 
@@ -99,8 +99,8 @@ app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootS
         preferencias = {}
     }
     $rootScope.preferencias = preferencias
-    SesionService.setTipo(preferencias.tipo)
-    SesionService.setUsr(preferencias.usr)
+    // SesionService.setTipo(preferencias.tipo)
+    // SesionService.setUsr(preferencias.usr)
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         $rootScope.spinnerGrow = false
@@ -556,173 +556,77 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
     })
 })
 
-app.service("SesionService", function () {
-    this.tipo = null
-    this.usr = null
+// app.service("SesionService", function () {
+//     this.tipo = null
+//     this.usr = null
 
-    this.setTipo = function (tipo) {
-        this.tipo = tipo
-    }
+//     this.setTipo = function (tipo) {
+//         this.tipo = tipo
+//     }
 
-    this.getTipo = function () {
-        return this.tipo
-    }
+//     this.getTipo = function () {
+//         return this.tipo
+//     }
 
-    this.setUsr = function (usr) {
-        this.usr = usr
-    }
+//     this.setUsr = function (usr) {
+//         this.usr = usr
+//     }
 
-    this.getUsr = function () {
-        return this.usr
-    }
-});
+//     this.getUsr = function () {
+//         return this.usr
+//     }
+// });
 
-app.factory("CategoriaFactory", function () {
-    function Categoria(titulo, sucursales) {
-        this.titulo = titulo
-        this.sucursales = sucursales
-    }
+app.controller("laboratorioCtrl", function ($scope) {
 
-    Categoria.prototype.getInfo = function () {
-        return {
-            titulo: this.titulo,
-            sucursales: this.sucursales
-        }
-    }
-
-    return {
-        create: function (titulo, sucursales) {
-            return new Categoria(titulo, sucursales)
-        }
-    }
-})
-
-
-app.controller("sucursalCtrl", function ($scope, $http, $rootScope, SesionService, CategoriaFactory) {
-    function buscarsucursal() {
-        $.get("/tbodysucursal", function (trsHTML) {
-            $("#tbodySucursal").html(trsHTML)
+    // Función para cargar todas las horas
+    function cargarHoras() {
+        $.get("/tbodylaboratorio", function(trsHTML){
+            $("#tbodylaboratorio").html(trsHTML)
         })
     }
 
-    buscarsucursal()
+    // Cargar al inicio
+    cargarHoras()
 
-    let preferencias = $rootScope.preferencias || {}
-    $rootScope.SesionService = SesionService
-    $rootScope.currentView = 'sucursal'
-    
-    $.get("sucursal/categorias", {
-        categoria: "Abarrotes"
-    },function (abarrotes){
-        const categoriaAbarrotes = CategoriaFactory.create("Abarrotes",abarrotes)
-        console.log("Abarrotes Factory", categoriaAbarrotes.getInfo())
-        $scope.categoriaAbarrotes = categoriaAbarrotes
+    // Función de búsqueda
+    $(document).on("click", "#btnBuscarHora", function() {
+        const busqueda = $("#txtBuscarHora").val().trim()
+
+        if (busqueda === "") {
+            cargarHoras()
+            return
+        }
+
+        $.get("/laboratorio/buscar", { busqueda: busqueda }, function(registros) {
+            let trsHTML = ""
+            registros.forEach(hora => {
+                trsHTML += `
+                    <tr>
+                        <td>${hora.Id_Hora}</td>
+                        <td>${hora.Hora}</td>
+                    </tr>
+                `
+            })
+            $("#tbodylaboratorio").html(trsHTML)
+        }).fail(function(xhr){
+            console.error("Error al buscar hora:", xhr.responseText)
+        })
     })
-    
-    Pusher.logToConsole = true
 
-    var pusher = new Pusher("b51b00ad61c8006b2e6f", {
-      cluster: "us2"
+    // Enter para buscar
+    $("#txtBuscarHora").on("keypress", function(e) {
+        if (e.which === 13) {
+            $("#btnBuscarHora").click()
+        }
     })
 
-    var channel = pusher.subscribe("canalsucursal")
-    channel.bind("eventosucursal", function(data) {
-        buscarsucursal()
-    })
-
-    // function editarTraje(id) {
-    //     fetch(`/trajes/${id}`)
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             if (data.length > 0) {      
-    //                 const traje = data[0];
-
-    //                 console.log("Nombre:", traje.nombreTraje);
-    //                 console.log("Descripción:", traje.descripcion);
-    //                 console.log("ID del traje:", traje.IdTraje);
-                    
-    //                 $scope.txtNombre = traje.nombreTraje;
-    //                 $scope.txtDescripcion = traje.descripcion;
-    //                 $scope.txtIdTraje = traje.IdTraje;
-    //                 $scope.$apply();
-    //             }
-    //         });
-    // }
-    
-    // $(document).on("click", "#tbodyTrajes .btn-modificar", function(){
-    //     const id = $(this).data("id");
-    //     editarTraje(id);
-    // });
-    // $scope.txtIdTraje = null;
-    // $scope.guardarTraje = function() {
-    // $http.post("/trajes/guardar", {
-    //         IdTraje: $scope.txtIdTraje,
-    //         txtNombre: $scope.txtNombre,
-    //         txtDescripcion: $scope.txtDescripcion
-    //     }).then(function(respuesta) {
-    //         alert(respuesta.data.mensaje);
-    //         $scope.txtNombre = "";
-    //         $scope.txtDescripcion = "";
-    //         $scope.txtIdTraje = null;
-    //         buscarTrajes();
-    //     }, function(error) {
-    //         console.error(error);
-    //     });
-    // };
-
-    $(document).on("click", "#btnBuscarSucursal", function() {
-    const busqueda = $("#txtBuscarSucursal").val().trim();
-
-    if (busqueda === "") {
-        buscarsucursal(); 
-        return;
-    }
-
-    $.get("/sucursal/buscar", { busqueda: busqueda }, function(registros) {
-        let trsHTML = "";
-        registros.forEach(sucursal => {
-            trsHTML += `
-                <tr>
-                    <td>${sucursal.Id_sucursal}</td>
-                    <td>${sucursal.Nombre}</td>
-                    <td>${sucursal.Direccion}</td>
-                    // <td>
-                    //     <button class="btn btn-danger btn-eliminar" data-id="${sucursal.Id_sucursal}">Eliminar</button>
-                    // </td>
-                    // <td>
-                    //     <button class="btn btn-warning btn-modificar" data-id="${sucursal.Id_sucursal}">Modificar</button>
-                    // </td>
-                </tr>
-            `;
-        });
-        $("#tbodySucursal").html(trsHTML);
-    }).fail(function(xhr){
-        console.error("Error al buscar sucursal:", xhr.responseText);
-    });
-});
-
-$("#txtBuscarSucursal").on("keypress", function(e) {
-    if(e.which === 13) {
-        $("#btnBuscarSucursal").click();
-    }
-});
-    // $(document).on("click", "#tbodyTrajes .btn-eliminar", function(){
-    //     const id = $(this).data("id");
-    //     if(confirm("¿Deseas eliminar este traje?")) {
-    //         $.post("/trajes/eliminar", {id: id}, function(response){
-    //             console.log("Traje eliminado correctamente");
-    //              buscarTrajes()
-    //         }).fail(function(xhr){
-    //             console.error("Error al eliminar traje:", xhr.responseText);
-    //         });
-    //     }
-    // });
 })
+
 
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
 
 
 
