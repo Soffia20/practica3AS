@@ -66,7 +66,7 @@ app.config(function ($routeProvider, $locationProvider) {
         redirectTo: "/"
     })
 })
-app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootScope, $location, $timeout, SesionService) {
+app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, $timeout) {
     $rootScope.slide             = ""
     $rootScope.spinnerGrow       = false
     $rootScope.sendingRequest    = false
@@ -591,7 +591,7 @@ app.controller("laboratorioCtrl", function ($scope) {
 
     // Función de búsqueda
     $(document).on("click", "#btnBuscarHora", function() {
-        const busqueda = $("#txtBuscarHora").val().trim()
+        const busqueda = $("#txtBuscarHora").val().trim()   
 
         if (busqueda === "") {
             cargarHoras()
@@ -627,27 +627,3 @@ app.controller("laboratorioCtrl", function ($scope) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
