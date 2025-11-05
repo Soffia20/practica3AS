@@ -50,6 +50,26 @@ let lxFechaHora
 let diffMs = 0
 
 const app = angular.module("angularjsApp", ["ngRoute"])
+
+app.service("SesionService", function() {
+    this.usuario = null
+    this.correo = null
+
+    this.setUsuario = function(usuario) {
+        this.usuario = usuario;
+    };
+    this.getUsuario = function() {
+        return this.usuario;
+    };
+
+    this.setCorreo = function(correo) {
+        this.correo = correo;
+    };
+    this.getCorreo = function() {
+        return this.correo;
+    };
+});
+
 app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("")
 
@@ -66,7 +86,7 @@ app.config(function ($routeProvider, $locationProvider) {
         redirectTo: "/"
     })
 })
-app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, $timeout) {
+app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootScope, $location, $timeout, $SesionService) {
     $rootScope.slide             = ""
     $rootScope.spinnerGrow       = false
     $rootScope.sendingRequest    = false
@@ -99,8 +119,8 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
         preferencias = {}
     }
     $rootScope.preferencias = preferencias
-    // SesionService.setTipo(preferencias.tipo)
-    // SesionService.setUsr(preferencias.usr)
+    $SesionService.setUsuario(preferencias.usuario)
+    $SesionService.setCorreo(preferencias.correo)
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         $rootScope.spinnerGrow = false
@@ -556,29 +576,8 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
     })
 })
 
-// app.service("SesionService", function () {
-//     this.tipo = null
-//     this.usr = null
-
-//     this.setTipo = function (tipo) {
-//         this.tipo = tipo
-//     }
-
-//     this.getTipo = function () {
-//         return this.tipo
-//     }
-
-//     this.setUsr = function (usr) {
-//         this.usr = usr
-//     }
-
-//     this.getUsr = function () {
-//         return this.usr
-//     }
-// });
-
-app.controller("laboratorioCtrl", function ($scope) {
-
+app.controller("laboratorioCtrl", function ($scope, SesionService) {
+    $scope.SesionService = SesionService;
     // Función para cargar todas las horas
     function cargarHoras() {
         $.get("/tbodylaboratorio", function(trsHTML){
@@ -591,7 +590,7 @@ app.controller("laboratorioCtrl", function ($scope) {
 
     // Función de búsqueda
     $(document).on("click", "#btnBuscarHora", function() {
-        const busqueda = $("#txtBuscarHora").val().trim()   
+        const busqueda = $("#txtBuscarHora").val().trim()
 
         if (busqueda === "") {
             cargarHoras()
