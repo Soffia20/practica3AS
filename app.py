@@ -137,28 +137,19 @@ def preferencias():
 @login
 def laboratorio():
     return render_template("laboratorio.html")
-
+    
 @app.route("/tbodylaboratorio")
-@login
-def tbodylaboratorio():
-    if not con.is_connected():
-        con.reconnect()
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT Id_Hora,
-           Hora
+def tbody_laboratorio():
+    try:
+        cursor = conexion.cursor(dictionary=True)
+        # Query correcto con los nombres de columna reales
+        cursor.execute("SELECT Id_Hora, Hora FROM laboratorio ORDER BY Hora")
+        horas = cursor.fetchall()
+        return render_template("tbodylaboratorio.html", horas=horas)
+    except Exception as e:
+        print("Error en /tbodylaboratorio:", e)
+        return {"error": str(e)}, 500
 
-    FROM Hora_Lab
-
-    ORDER BY Hora_Lab DESC
-
-    LIMIT 10 OFFSET 0
-    """
-
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-
-    return render_template("tbodylaboratorio.html", hora=registros)
 
 @app.route("/laboratorio/buscar", methods=["GET"])
 @login
@@ -320,5 +311,6 @@ def buscarlaboratorio():
 #     con.close()
 
 #     return make_response(jsonify(registros))
+
 
 
