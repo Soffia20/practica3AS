@@ -154,7 +154,8 @@ def tbodylaboratorio():
     cursor.execute(sql)
     registros = cursor.fetchall()
     cursor.close()
-    return render_template("tbodylaboratorio.html", hora=registros)
+    return render_template("tbodylaboratorio.html", horas=registros)
+
 
 
 @app.route("/laboratorio/buscar", methods=["GET"])
