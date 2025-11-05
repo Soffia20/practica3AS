@@ -187,4 +187,36 @@ def buscarlaboratorio():
 
     return make_response(jsonify(registros))
 
+@app.route("/laboratorio/categorias", methods=["GET"])
+@login
+def laboratoriocategoria():
+    if not con.is_connected():
+        con.reconnect()
 
+    args     = request.args
+    categoria = args["categoria"]
+    
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT Hora
+    FROM Hora_Lab
+
+    WHERE categoria = %s
+    ORDER BY Hora ASC
+
+    LIMIT 10 OFFSET 0
+    """
+    val    = (categoria, )
+
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
+
+    finally:
+        con.close()
+
+    return make_response(jsonify(registros))
