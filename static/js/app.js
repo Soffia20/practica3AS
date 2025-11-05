@@ -619,6 +619,13 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         console.log("AM Factory", categoriaAM.getInfo())
         $scope.categoriaAM = categoriaAM
     })
+    $.get("laboratorio/categorias", {
+        categoria: "PM"
+    },function (pm){
+        const categoriaPM = CategoriaFactory.create("PM",pm)
+        console.log("PM Factory", categoriaPM.getInfo())
+        $scope.categoriaPM = categoriaPM
+    })
 
     // Función de búsqueda
     $(document).on("click", "#btnBuscarHora", function() {
@@ -658,4 +665,5 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
