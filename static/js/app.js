@@ -559,7 +559,7 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
 
 app.service("SesionService", function() {
     this.usuario = null
-    this.correo = null
+    this.tipo = null
 
     this.setUsuario = function(usuario) {
         this.usuario = usuario;
@@ -568,11 +568,11 @@ app.service("SesionService", function() {
         return this.usuario;
     };
 
-    this.setCorreo = function(correo) {
-        this.correo = correo;
+    this.setTipo = function(correo) {
+        this.tipo = tipo;
     };
-    this.getCorreo = function() {
-        return this.correo;
+    this.getTipo = function() {
+        return this.tipo;
     };
 });
 
@@ -626,3 +626,4 @@ app.controller("laboratorioCtrl", function ($scope, SesionService) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
