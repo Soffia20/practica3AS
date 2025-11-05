@@ -128,7 +128,7 @@ def cerrarSesion():
 @login
 def preferencias():
     return make_response(jsonify({
-        "usr": session.get("login-usr"),
+        "usuario": session.get("login-usr"),
         "tipo": session.get("login-tipo", 2)
     }))
 
@@ -153,7 +153,6 @@ def tbodylaboratorio():
     """
     cursor.execute(sql)
     registros = cursor.fetchall()
-    cursor.close()
     return render_template("tbodylaboratorio.html", horas=registros)
 
 
@@ -187,4 +186,3 @@ def buscarlaboratorio():
         cursor.close()
 
     return make_response(jsonify(registros))
-
