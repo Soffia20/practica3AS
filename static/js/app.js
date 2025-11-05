@@ -568,7 +568,7 @@ app.service("SesionService", function() {
         return this.usuario;
     };
 
-    this.setTipo = function(tipo) {
+    this.setTipo = function(correo) {
         this.tipo = tipo;
     };
     this.getTipo = function() {
@@ -576,7 +576,27 @@ app.service("SesionService", function() {
     };
 });
 
-app.controller("laboratorioCtrl", function ($scope, SesionService) {
+app.factory("CategoriaFactory", function () {
+    function Categoria(titulo, laboratorio) {
+        this.titulo = titulo
+        this.laboratorio = laboratorio
+    }
+
+    Categoria.prototype.getInfo = function () {
+        return {
+            titulo: this.titulo,
+            laboratorio: this.laboratorio
+        }
+    }
+
+    return {
+        create: function (titulo, laboratorio) {
+            return new Categoria(titulo, laboratorio)
+        }
+    }
+})
+
+app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFactory) {
     $scope.SesionService = SesionService;
     // Función para cargar todas las horas
     function cargarHoras() {
@@ -587,6 +607,18 @@ app.controller("laboratorioCtrl", function ($scope, SesionService) {
 
     // Cargar al inicio
     cargarHoras()
+
+    // let preferencias = $rootScope.preferencias || {}
+    // $rootScope.SesionService = SesionService
+    // $rootScope.currentView = 'sucursal'
+
+    $.get("laboratorio/categorias", {
+        categoria: "AM"
+    },function (am){
+        const categoriaAM = CategoriaFactory.create("AM",am)
+        console.log("AM Factory", categoriaAM.getInfo())
+        $scope.categoriaAM = categoriaAM
+    })
 
     // Función de búsqueda
     $(document).on("click", "#btnBuscarHora", function() {
@@ -626,6 +658,3 @@ app.controller("laboratorioCtrl", function ($scope, SesionService) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
-
-
