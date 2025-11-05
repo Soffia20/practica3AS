@@ -1,9 +1,8 @@
-{% for sucursal in sucursal %}
+{% for hora in horas %}
 <tr>
-    <td>{{ sucursal.Id_sucursal }}</td>
-    <td>{{ sucursal.Nombre }}</td>
-    <td>{{ sucursal.Descripcion }}</td>
-    <!-- <td><button class="btn btn-danger  btn-eliminar" data-id="{{ sucursal.Id_sucursal }}">Eliminar</button></td>
-    <td><button class="btn btn-warning   btn-modificar" data-id="{{ sucursal.Id_sucursal }}">Modificar</button></td> -->
+    <td>{{ hora.Id_Hora }}</td>
+    <td>{{ hora.Hora }}</td>
+    <!-- <td><button class="btn btn-danger btn-eliminar" data-id="{{ hora.Id_Hora }}">Eliminar</button></td>
+    <td><button class="btn btn-warning btn-modificar" data-id="{{ hora.Id_Hora }}">Modificar</button></td> -->
 </tr>
 {% endfor %}
