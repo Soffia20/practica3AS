@@ -4,18 +4,20 @@
 # py -m ensurepip --upgrade
 # pip install -r requirements.txt
 
-from flask import Flask
-
-from flask import render_template
-from flask import request
-from flask import jsonify, make_response
-
-import mysql.connector
-
-import datetime
-import pytz
+from functools import wraps
+from flask import Flask, render_template, request, jsonify, make_response, session
 
 from flask_cors import CORS, cross_origin
+
+import mysql.connector.pooling
+import pusher
+import pytz
+import datetime
+import traceback
+
+app            = Flask(__name__)
+app.secret_key = "Test12345"
+CORS(app)
 
 con = mysql.connector.connect(
     host="185.232.14.52",
@@ -24,41 +26,59 @@ con = mysql.connector.connect(
     password="F1O[QWJ$@2x"
 )
 
-app = Flask(__name__)
-CORS(app)
+# TRAJES
+def pusherLaboratorio():
+    import pusher
+    
+    pusher_client = pusher.Pusher(
+    app_id="2046017",
+    key="b51b00ad61c8006b2e6f",
+    secret="d2ec35aa5498a18af7bf",
+    cluster="us2",
+    ssl=True
+    )
+    
+    pusher_client.trigger("canallaboratorio", "eventolaboratorio", {"message": "Hola Mundo!"})
 
-# def pusherClientes():
-#     import pusher
-    
-#     pusher_client = pusher.Pusher(
-#         app_id='2047513',
-#         key='bf79fc5f8fe969b1839e',
-#         secret='9b73ac4b30f41a28c732',
-#         cluster='us2',
-#         ssl=True
-#     )
-    
-#     pusher_client.trigger("canalClientes", "eventoClientes", {"message": "Hola Mundo!"})
-#     return make_response(jsonify({}))
+
+def login(fun):
+    @wraps(fun)
+    def decorador(*args, **kwargs):
+        if not session.get("login"):
+            return jsonify({
+                "estado": "error",
+                "respuesta": "No has iniciado sesión"
+            }), 401
+        return fun(*args, **kwargs)
+    return decorador
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    print("❌ ERROR DETECTADO EN FLASK ❌")
+    traceback.print_exc()
+    return make_response(jsonify({"error": str(e)}), 500)
 
 @app.route("/")
-def index():
-    if not con.is_connected():
-        con.reconnect()
+def landingPage():
+    
+    return render_template("landing-page.html")
 
-    con.close()
+@app.route("/dashboard")
+def dashboard():
+    
+    return render_template("dashboard.html")
 
-    return render_template("index.html")
-
-@app.route("/app")
-def app2():
-    if not con.is_connected():
-        con.reconnect()
-
-    con.close()
-
+@app.route("/login")
+def appLogin():
+    
     return render_template("login.html")
     # return "<h5>Hola, soy la view app</h5>"
+
+@app.route("/fechaHora")
+def fechaHora():
+    tz    = pytz.timezone("America/Matamoros")
+    ahora = datetime.datetime.now(tz)
+    return ahora.strftime("%Y-%m-%d %H:%M:%S")
 
 @app.route("/iniciarSesion", methods=["POST"])
 # Usar cuando solo se quiera usar CORS en rutas específicas
@@ -66,15 +86,13 @@ def app2():
 def iniciarSesion():
     if not con.is_connected():
         con.reconnect()
-
-    usuario    = request.form["txtUsuario"]
-    contrasena = request.form["txtContrasena"]
+    usuario    = request.form["usuario"]
+    contrasena = request.form["contrasena"]
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Usuario
+    SELECT Id_Usuario, Nombre_Usuario, Correo_Electronico
     FROM usuarios
-
     WHERE Nombre_Usuario = %s
     AND Contrasena = %s
     """
@@ -82,50 +100,57 @@ def iniciarSesion():
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
-    con.close()
+    if cursor:
+        cursor.close()
+    if con and con.is_connected():
+        con.close()
+
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
+    if registros:
+        usuario = registros[0]
+        session["login"]      = True
+        session["login-usr"]  = usuario["Nombre_Usuario"]
+        session["login-tipo"] = usuario["Correo_Electronico"]
 
     return make_response(jsonify(registros))
 
-
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.form["id"]
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    DELETE FROM productos
-    WHERE Id_Producto = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
+@app.route("/cerrarSesion", methods=["POST"])
+@login
+def cerrarSesion():
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
     return make_response(jsonify({}))
 
-# CLIENTES
+@app.route("/preferencias")
+@login
+def preferencias():
+    return make_response(jsonify({
+        "usr": session.get("login-usr"),
+        "tipo": session.get("login-tipo", 2)
+    }))
 
-@app.route("/clientes")
-def clientes():
-    return render_template("clientes.html")
+# sucursal
+@app.route("/laboratorio")
+@login
+def laboratorio():
+    return render_template("laboratorio.html")
 
-@app.route("/tbodyClientes")
-def tbodyClientes():
+@app.route("/tbodylaboratorio")
+@login
+def tbodylaboratorio():
     if not con.is_connected():
         con.reconnect()
-
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT idCliente,
-           nombreCliente,
-           telefono,
-           correoElectronico
+    SELECT Id_Hora,
+           Hora
 
-    FROM clientes
+    FROM Hora_Lab
 
-    ORDER BY idCliente DESC
+    ORDER BY Hora_Lab DESC
 
     LIMIT 10 OFFSET 0
     """
@@ -133,20 +158,11 @@ def tbodyClientes():
     cursor.execute(sql)
     registros = cursor.fetchall()
 
-    # Si manejas fechas y horas
-    """
-    for registro in registros:
-        fecha_hora = registro["Fecha_Hora"]
+    return render_template("tbodylaboratorio.html", hora=registros)
 
-        registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
-        registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
-        registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
-    """
-
-    return render_template("tbodyClientes.html", clientes=registros)
-
-@app.route("/clientes/buscar", methods=["GET"])
-def buscarClientes():
+@app.route("/laboratorio/buscar", methods=["GET"])
+@login
+def buscarlaboratorio():
     if not con.is_connected():
         con.reconnect()
 
@@ -156,132 +172,153 @@ def buscarClientes():
     
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT idCliente,
-           nombreCliente,
-           telefono,
-           correoElectronico
+    SELECT Id_Hora,
+           Hora
 
-    FROM clientes
+    FROM Hora_Lab
 
-    WHERE nombreCliente LIKE %s
-    OR    telefono          LIKE %s
-    OR    correoElectronico     LIKE %s
+    WHERE Hora LIKE %s
 
-    ORDER BY idCliente DESC
+    ORDER BY Id_Hora DESC
 
     LIMIT 10 OFFSET 0
     """
-    val    = (busqueda, busqueda, busqueda)
+    val    = (busqueda, busqueda)
 
     try:
         cursor.execute(sql, val)
         registros = cursor.fetchall()
-
-        # Si manejas fechas y horas
-        """
-        for registro in registros:
-            fecha_hora = registro["Fecha_Hora"]
-
-            registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
-            registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
-            registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
-        """
 
     except mysql.connector.errors.ProgrammingError as error:
         print(f"Ocurrió un error de programación en MySQL: {error}")
         registros = []
 
     finally:
-        cursor.close()
-
-    return make_response(jsonify(registros))
-
-@app.route("/cliente", methods=["POST"])
-# Usar cuando solo se quiera usar CORS en rutas específicas
-# @cross_origin()
-def guardarCliente():
-    if not con.is_connected():
-        con.reconnect()
-
-    idCliente = request.form.get("idCliente")
-    nombre      = request.form["nombreCliente"]
-    telefono      = request.form["telefono"]
-    correoElectronico = request.form["correoElectronico"]
-    
-    # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
-    
-    cursor = con.cursor()
-
-    if idCliente:
-        sql = """
-        UPDATE clientes
-
-        SET nombreCliente = %s,
-            telefono          = %s,
-            correoElectronico     = %s
-
-        WHERE idCliente = %s
-        """
-        val = (nombre, telefono, correoElectronico, idCliente)
-    else:
-        sql = """
-        INSERT INTO clientes (nombreCliente, telefono, correoElectronico)
-                    VALUES    (%s,          %s,      %s)
-        """
-        val =                 (nombre, telefono, correoElectronico)
-    
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    pusherClientes()
-    
-    return make_response(jsonify({}))
-
-@app.route("/cliente/<int:id>")
-def editarClientes(id):
-    if not con.is_connected():
-        con.reconnect()
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT idCliente, nombreCliente, telefono, correoElectronico
-
-    FROM clientes
-
-    WHERE idCliente = %s
-    """
-    val    = (id,)
-
-    cursor.execute(sql, val)
-    registros = cursor.fetchall()
-    con.close()
-
-    return make_response(jsonify(registros))
-
-@app.route("/clientes/eliminar", methods=["POST"])
-def eliminarCliente():
-    try:
-        if not con.is_connected():
-            con.reconnect()
-
-        idCliente = request.form.get("id")
-
-        cursor = con.cursor()
-        sql = "DELETE FROM clientes WHERE idCliente = %s"
-        val = (idCliente,)
-
-        cursor.execute(sql, val)
-        con.commit()
         con.close()
 
-        pusherClientes()
+    return make_response(jsonify(registros))
 
-        return make_response(jsonify({"status": "ok"}))
+# @app.route("/sucursal/categorias", methods=["GET"])
+# @login
+# def sucursalcategoria():
+#     if not con.is_connected():
+#         con.reconnect()
 
-    except Exception as e:
-        print("Error eliminando cliente:", e)
-        return make_response(jsonify({"error": str(e)}), 500)
+#     args     = request.args
+#     categoria = args["categoria"]
+    
+#     cursor = con.cursor(dictionary=True)
+#     sql    = """
+#     SELECT Nombre
+#     FROM sucursal
 
+#     WHERE categoria = %s
+#     ORDER BY Nombre ASC
+
+#     LIMIT 10 OFFSET 0
+#     """
+#     val    = (categoria, )
+
+#     try:
+#         cursor.execute(sql, val)
+#         registros = cursor.fetchall()
+
+#     except mysql.connector.errors.ProgrammingError as error:
+#         print(f"Ocurrió un error de programación en MySQL: {error}")
+#         registros = []
+
+#     finally:
+#         con.close()
+
+#     return make_response(jsonify(registros))
+
+# @app.route("/sucursal/guardar", methods=["POST", "GET"])
+# @login
+# def guardarsucursal():
+#     if not con.is_connected():
+#         con.reconnect()
+
+#     if request.method == "POST":
+#         data = request.get_json(silent=True) or request.form
+#         id_traje = data.get("IdTraje")
+#         nombre = data.get("txtNombre")
+#         descripcion = data.get("txtDescripcion")
+#     else: 
+#         nombre = request.args.get("nombre")
+#         descripcion = request.args.get("descripcion")
+#     if not nombre or not descripcion:
+#         return jsonify({"error": "Faltan parámetros"}), 400
+        
+#     cursor = con.cursor()
+    
+#     if id_traje:
+#         sql = """
+#         UPDATE  trajes
+#             SET nombreTraje = %s,
+#             descripcion = %s
+#         WHERE IdTraje = %s
+#         """
+#         cursor.execute(sql, (nombre, descripcion, id_traje))
+        
+#         pusherProductos()
+#     else: 
+#         sql = """
+#         INSERT INTO trajes (nombreTraje, descripcion)
+#         VALUES (%s, %s)
+#         """
+#         cursor.execute(sql, (nombre, descripcion))
+
+#         pusherProductos()
+
+#     con.commit()
+#     con.close()
+#     return make_response(jsonify({"mensaje": "Traje guardado correctamente"}))
+
+# @app.route("/trajes/eliminar", methods=["POST", "GET"])
+# @login
+# def eliminartraje():
+#     if not con.is_connected():
+#         con.reconnect()
+
+#     if request.method == "POST":
+#         IdTraje = request.form.get("id")
+#     else:
+#         IdTraje = request.args.get("id")
+
+#     IdTraje = int(IdTraje)
+    
+#     cursor = con.cursor()
+#     sql = "DELETE FROM trajes WHERE IdTraje = %s"
+#     val = (IdTraje,)
+
+#     cursor.execute(sql, val)
+#     con.commit()
+#     con.close()
+
+#     pusherProductos()
+
+#     return make_response(jsonify({"status": "ok"}))
+
+# @app.route("/trajes/<int:id>")
+# @login
+# def editarTrajes(id):
+#     if not con.is_connected():
+#         con.reconnect()
+
+#     cursor = con.cursor(dictionary=True)
+#     sql    = """
+#     SELECT IdTraje, nombreTraje, descripcion
+
+#     FROM trajes
+
+#     WHERE IdTraje = %s
+#     """
+#     val    = (id,)
+
+#     cursor.execute(sql, val)
+#     registros = cursor.fetchall()
+#     con.close()
+
+#     return make_response(jsonify(registros))
 
 
