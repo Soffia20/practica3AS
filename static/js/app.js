@@ -605,12 +605,7 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         })
     }
 
-    // Cargar al inicio
     cargarHoras()
-
-    // let preferencias = $rootScope.preferencias || {}
-    // $rootScope.SesionService = SesionService
-    // $rootScope.currentView = 'sucursal'
 
     $.get("laboratorio/categorias", {
         categoria: "AM"
@@ -625,6 +620,16 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         const categoriaPM = CategoriaFactory.create("PM",pm)
         console.log("PM Factory", categoriaPM.getInfo())
         $scope.categoriaPM = categoriaPM
+    })
+
+    Pusher.logToConsole = true
+    var pusher = new Pusher("b51b00ad61c8006b2e6f", {
+      cluster: "us2"
+    })
+
+    var channel = pusher.subscribe("canallaboratorio")
+    channel.bind("eventolaboratorio", function(data) {
+        cargarHoras()
     })
 
     // Función de búsqueda
