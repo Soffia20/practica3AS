@@ -484,6 +484,17 @@ app.run(["$rootScope", "$location", "$timeout", "SesionService", function($rootS
                         localStorage.setItem("login", login)
                         localStorage.setItem("preferencias", JSON.stringify(preferencias))
                         $rootScope.redireccionar(login, preferencias)
+
+                            //  Mostrar en consola para verificar
+                        console.log("👤 Usuario:", preferencias.usuario)
+                        console.log("📧 Correo:", preferencias.tipo)
+
+                        //  Guardar directamente en el scope global
+                        $rootScope.usuario = preferencias.usuario
+                        $rootScope.tipo  = preferencias.tipo
+
+                        $rootScope.$applyAsync() // fuerza actualización en la vista
+                        $rootScope.redireccionar(login, preferencias)
                     })
 
 
