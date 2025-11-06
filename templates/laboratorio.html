@@ -2,16 +2,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <form id="frmLaboratorio" method="post">
-    <!-- <div class="position-absolute top-0 start-0 m-3 d-flex align-items-start" ng-controller="SesionController">
-        <i class="bi bi-person-circle fs-3 me-2 text-success"></i>
-        <div>
-            <p class="mb-0 fw-semibold">{{ "{{ SesionService.getUsuario() }}" }}</p>
-            <small class="text-muted">{{ "{{ SesionService.getTipo() }}" }}</small>
-        </div>
-    </div> -->
-    <div class="mb-4 p-3 rounded shadow-sm bg-light text-center" style="max-width: 400px; margin: 0 auto; ng-controller="SesionController"">
-        <p class="mb-1"><strong>Usuario:</strong> {{ "{{ SesionService.getUsuario() }}" }}</p>
-        <p><strong>Correo:</strong> {{ "{{ SesionService.getTipo() }}" }}</p>
+    <div ng-controller="SesionController"
+        class="position-fixed top-0 start-0 m-3 d-flex align-items-center bg-light rounded shadow-sm p-2"
+        style="z-index: 1050; min-width: 220px;">
+        
+    <!-- Ícono de usuario -->
+    <i class="bi bi-person-circle fs-3 me-2 text-primary"></i>
+
+    <!-- Datos de sesión -->
+    <div class="d-flex flex-column">
+        <p class="mb-0 fw-semibold">{{ "{{ SesionService.getUsuario() }}" }}</p>
+        <small class="text-muted">{{ "{{ SesionService.getTipo() }}" }}</small>
+    </div>
     </div>
 
     <div class="mb-1">
