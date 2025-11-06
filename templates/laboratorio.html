@@ -1,9 +1,14 @@
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
 <form id="frmLaboratorio" method="post">
-    <div class="mb-4 text-center">
-        <p class="mb-1"><strong>Usuario:</strong> {{ "{{ SesionService.getUsuario() }}" }}</p>
-        <p class="mb-3"><strong>Correo:</strong> {{ "{{ SesionService.getTipo() }}" }}</p>
+    <div class="position-absolute top-0 start-0 m-3 d-flex align-items-start">
+        <i class="bi bi-person-circle fs-3 me-2 text-success"></i>
+        <div>
+            <p class="mb-0 fw-semibold">{{ "{{ SesionService.getUsuario() }}" }}</p>
+            <small class="text-muted">{{ "{{ SesionService.getTipo() }}" }}</small>
+        </div>
     </div>
-
     <!-- <div class="mb-4 p-3 rounded shadow-sm bg-light text-center" style="max-width: 400px; margin: 0 auto;">
         <p class="mb-1"><strong>Usuario:</strong> {{ "{{ SesionService.getUsuario() }}" }}</p>
         <p><strong>Correo:</strong> {{ "{{ SesionService.getTipo() }}" }}</p>
