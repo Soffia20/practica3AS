@@ -1,11 +1,11 @@
 <form id="frmLaboratorio" method="post">
-    <div class="card text-bg mb-3" style="max-width: 18rem;">
+    <div class="card border-light mb-3" style="max-width: 18rem;">
+        <div class="card-header">Información del Usuario</div>
         <div class="card-body">
-            <h5 class="card-tittle">Información del Usuario</h5>
-            <p class="card-text"><b>Usuario: </b> {{ "{{ SesionService.getUsuario() }}" }}</p>
-            <p class="card-text"><b>Correo: </b> {{ "{{ SesionService.getTipo() }}" }}</p>
+                <i class="bi bi-person"></i><p class="card-text"><b> </b> {{ "{{ SesionService.getUsuario() }}" }} {{ "{{ SesionService.getTipo() }}" }}</p>
         </div>
     </div>
+
     <div class="mb-1">
         <label>Hora</label>
         <input type="text" class="form-control" id="txtHora" name="txtHora">
@@ -59,7 +59,7 @@
             <h5>{{ "{{ categoriaPM.titulo }}" }}</h5>
             <div class="row">
                 <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3" ng-repeat="laboratorio in categoriaPM.laboratorio">
-                    <div class="card text-bg-warning mb-3">
+                    <div class="card text-bg-success mb-3">
                         <div class="card-header">Horario de Laboratorio</div>
                         <div class="card-body">
                             <h5 class="card-title">{{ "{{ laboratorio.Hora }}" }}</h5>
