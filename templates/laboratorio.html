@@ -1,12 +1,14 @@
 <form id="frmLaboratorio" method="post">
-    <div class="card text-bg-success mb-3" style="max-width: 18rem;">
-        <div class="card-header">Sesión</div>
-        <div class="card-body">
-            <h5 class="card-tittle">Información del Usuario</h5>
-            <p class="card-text"><b>Usuario: </b> {{ "{{ SesionService.getUsuario() }}" }}</p>
-            <p class="card-text"><b>Correo: </b> {{ "{{ SesionService.getTipo() }}" }}</p>
-        </div>
+    <div class="mb-4 text-center">
+        <p class="mb-1"><strong>Usuario:</strong> {{ "{{ SesionService.getUsuario() }}" }}</p>
+        <p class="mb-3"><strong>Correo:</strong> {{ "{{ SesionService.getTipo() }}" }}</p>
     </div>
+
+    <!-- <div class="mb-4 p-3 rounded shadow-sm bg-light text-center" style="max-width: 400px; margin: 0 auto;">
+        <p class="mb-1"><strong>Usuario:</strong> {{ "{{ SesionService.getUsuario() }}" }}</p>
+        <p><strong>Correo:</strong> {{ "{{ SesionService.getTipo() }}" }}</p>
+    </div> -->
+
     <div class="mb-1">
         <label>Hora</label>
         <input type="text" class="form-control" id="txtHora" name="txtHora">
