@@ -2,8 +2,8 @@
     <div class="card border-light mb-3" style="max-width: 18rem;">
         <div class="card-header">Información del Usuario</div>
         <div class="card-body">
-                <i class="bi bi-person"></i><p class="card-text"><b> </b> {{ "{{ SesionService.getUsuario() }}" }}</p>
-            <p class="card-text"><b> </b> {{ "{{ SesionService.getTipo() }}" }}</p>
+                <i class="bi bi-person"></i><p class="card-text"><b> Usuario: </b> {{ "{{ SesionService.getUsuario() }}" }}</p>
+            <p class="card-text"><b> Correo: </b> {{ "{{ SesionService.getTipo() }}" }}</p>
         </div>
     </div>
 
@@ -60,9 +60,9 @@
             <h5>{{ "{{ categoriaPM.titulo }}" }}</h5>
             <div class="row">
                 <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3" ng-repeat="laboratorio in categoriaPM.laboratorio">
-                    <div class="card text-bg-success mb-3">
+                    <div class="card border-success mb-3">
                         <div class="card-header">Horario de Laboratorio</div>
-                        <div class="card-body">
+                        <div class="card-body text-success">
                             <h5 class="card-title">{{ "{{ laboratorio.Hora }}" }}</h5>
                             <p class="card-text"></p>
                         </div>
