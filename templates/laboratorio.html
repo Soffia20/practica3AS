@@ -1,21 +1,12 @@
-<head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-</head>
 <form id="frmLaboratorio" method="post">
-    <div ng-controller="SesionController"
-        class="position-fixed top-0 start-0 m-3 d-flex align-items-center bg-light rounded shadow-sm p-2"
-        style="z-index: 1050; min-width: 220px;">
-        
-    <!-- Ícono de usuario -->
-    <i class="bi bi-person-circle fs-3 me-2 text-primary"></i>
-
-    <!-- Datos de sesión -->
-    <div class="d-flex flex-column">
-        <p class="mb-0 fw-semibold">{{ "{{ SesionService.getUsuario() }}" }}</p>
-        <small class="text-muted">{{ "{{ SesionService.getTipo() }}" }}</small>
+    <div class="card text-bg-success mb-3" style="max-width: 18rem;">
+        <div class="card-header">Sesión</div>
+        <div class="card-body">
+            <h5 class="card-tittle">Información del Usuario</h5>
+            <p class="card-text"><b>Usuario: </b> {{ "{{ SesionService.getUsuario() }}" }}</p>
+            <p class="card-text"><b>Correo: </b> {{ "{{ SesionService.getTipo() }}" }}</p>
+        </div>
     </div>
-    </div>
-
     <div class="mb-1">
         <label>Hora</label>
         <input type="text" class="form-control" id="txtHora" name="txtHora">
