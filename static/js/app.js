@@ -596,6 +596,12 @@ app.factory("CategoriaFactory", function () {
     }
 })
 
+app.controller("SesionController", function($scope, SesionService) {
+    $scope.usuario = SesionService.getUsuario();
+    $scope.tipo = SesionService.getTipo();
+});
+
+
 app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFactory) {
     $scope.SesionService = SesionService;
     // Función para cargar todas las horas
@@ -665,5 +671,4 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
 
