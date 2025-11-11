@@ -683,7 +683,7 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 
         const idHora = $("#idHora").val();
 
-        $.post("/laboratorio", {
+        $.post("/laboratorios", {
             Id_Hora: idHora,
             Hora: $("#txtHora").val(),
             Categoria: $("#txtCategoria").val()
@@ -736,4 +736,5 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
