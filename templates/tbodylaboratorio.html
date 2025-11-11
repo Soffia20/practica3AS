@@ -3,7 +3,8 @@
     <td>{{ hora.Id_Hora }}</td>
     <td>{{ hora.Hora }}</td>
     <td>{{ hora.Categoria }}</td>
-    <!-- <td><button class="btn btn-danger btn-eliminar" data-id="{{ hora.Id_Hora }}">Eliminar</button></td>
-    <td><button class="btn btn-warning btn-modificar" data-id="{{ hora.Id_Hora }}">Modificar</button></td> -->
+    <td><button class="btn btn-danger btn-eliminar" data-id="{{ hora.Id_Hora }}">Eliminar</button></td>
+    <td><button class="btn btn-warning btn-modificar" data-id="{{ hora.Id_Hora }}">Modificar</button></td>
+    <td><button class="btn btn-primary btn-ver-laboratorio" data-id="{{ laboratorio.idHora }}" data-categoria="{{ laboratorio.Categoria }}">Ver</button></td>
 </tr>
 {% endfor %}
