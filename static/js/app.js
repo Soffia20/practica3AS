@@ -626,43 +626,109 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
     var pusher = new Pusher("b51b00ad61c8006b2e6f", {
       cluster: "us2"
     })
-
     var channel = pusher.subscribe("canallaboratorio")
     channel.bind("eventolaboratorio", function(data) {
         cargarHoras()
     })
 
-    // Función de búsqueda
-    $(document).on("click", "#btnBuscarHora", function() {
-        const busqueda = $("#txtBuscarHora").val().trim()
+
+    // Buscar 
+    $(document).on("click", "#btnGuardar", function() {
+        const busqueda = $("#txtBuscarHora").val().trim();
 
         if (busqueda === "") {
-            cargarHoras()
-            return
+            cargarHoras();
+            return;
         }
 
-        $.get("/laboratorio/buscar", { busqueda: busqueda }, function(registros) {
-            let trsHTML = ""
+        $.get("/horas/buscar", { busqueda: busqueda }, function(registros) {
+            let trsHTML = "";
             registros.forEach(hora => {
                 trsHTML += `
                     <tr>
                         <td>${hora.Id_Hora}</td>
                         <td>${hora.Hora}</td>
+                        <td>${hora.Categoria}</td>
+                        <td>
+                            <button class="btn btn-success btn-sm btn-editar" 
+                                data-id="${hora.Id_Hora}" 
+                                data-hora="${hora.Hora}" 
+                                data-categoria="${hora.Categoria}">
+                                Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm btn-eliminar" 
+                                data-id="${hora.Id_Hora}">
+                                Eliminar
+                            </button>
+                        </td>
                     </tr>
-                `
-            })
-            $("#tbodylaboratorio").html(trsHTML)
-        }).fail(function(xhr){
-            console.error("Error al buscar hora:", xhr.responseText)
-        })
-    })
+                `;
+            });
+            $("#tbodylaboratorio").html(trsHTML);
+        }).fail(function(xhr) {
+            console.error("Error al buscar horas:", xhr.responseText);
+        });
+    });
 
-    // Enter para buscar
+    // Permitir Enter para buscar
     $("#txtBuscarHora").on("keypress", function(e) {
         if (e.which === 13) {
-            $("#btnBuscarHora").click()
+            $("#btnBuscarHora").click();
         }
-    })
+    });
+
+    // Agregar o actualizar una hora
+    $(document).on("submit", "#frmLaboratorio", function(event) {
+        event.preventDefault();
+
+        const idHora = $("#idHora").val();
+
+        $.post("/hora", {
+            Id_Hora: idHora,
+            Hora: $("#txtHora").val(),
+            Categoria: $("#txtCategoria").val()
+        }, function(response) {
+            console.log("Hora guardada o actualizada correctamente");
+            $("#frmLaboratorio")[0].reset();
+            $("#idHora").val(""); // limpiar id oculto
+            cargarHoras();
+
+            const btnGuardar = $("#btnGuardar");
+            btnGuardar.text("Guardar");
+            btnGuardar.removeClass("btn-success").addClass("btn-primary");
+        }).fail(function(xhr) {
+            console.error("Error al guardar/actualizar hora:", xhr.responseText);
+        });
+    });
+
+    // Eliminar una hora
+    $(document).on("click", "#tbodylaboratorio .btn-eliminar", function() {
+        const id = $(this).data("id");
+        if (confirm("¿Deseas eliminar esta hora?")) {
+            $.post("/horas/eliminar", { id: id }, function(response) {
+                console.log("Hora eliminada correctamente");
+                cargarHoras();
+            }).fail(function(xhr) {
+                console.error("Error al eliminar hora:", xhr.responseText);
+            });
+        }
+    });
+
+    // Editar hora
+    $(document).on("click", "#tbodylaboratorio .btn-editar", function() {
+        const id = $(this).data("id");
+        const hora = $(this).data("hora");
+        const categoria = $(this).data("categoria");
+
+        $("#idHora").val(id);
+        $("#txtHora").val(hora);
+        $("#txtCategoria").val(categoria);
+
+        const btnGuardar = $("#btnGuardar");
+        btnGuardar.text("Actualizar");
+        btnGuardar.removeClass("btn-primary").addClass("btn-success");
+    });
+    
 
 })
 
