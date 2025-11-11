@@ -132,7 +132,7 @@ def preferencias():
         "tipo": session.get("login-tipo", 2)
     }))
 
-# sucursal
+# lab
 @app.route("/laboratorio")
 @login
 def laboratorio():
@@ -156,37 +156,6 @@ def tbodylaboratorio():
     registros = cursor.fetchall()
     return render_template("tbodylaboratorio.html", horas=registros)
 
-
-
-@app.route("/laboratorio/buscar", methods=["GET"])
-@login
-def buscarlaboratorio():
-    if not con.is_connected():
-        con.reconnect()
-
-    busqueda = f"%{request.args.get('busqueda', '')}%"
-    
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT Id_Hora,
-           Hora
-    FROM Hora_Lab
-    WHERE Hora LIKE %s
-    ORDER BY Id_Hora DESC
-    LIMIT 10 OFFSET 0
-    """
-    val    = (busqueda, )
-
-    try:
-        cursor.execute(sql, val)
-        registros = cursor.fetchall()
-    except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
-        registros = []
-    finally:
-        cursor.close()
-
-    return make_response(jsonify(registros))
 
 @app.route("/laboratorio/categorias", methods=["GET"])
 @login
@@ -221,3 +190,116 @@ def laboratoriocategoria():
         con.close()
 
     return make_response(jsonify(registros))
+
+@app.route("/laboratorios/buscar", methods=["GET"])
+def buscarLaboratorios():
+    if not con.is_connected():
+        con.reconnect()
+
+    args = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
+
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT Id_Hora, Hora, Categoria
+    FROM Hora_Lab
+    WHERE Hora LIKE %s
+       OR Categoria LIKE %s
+    ORDER BY Id_Hora DESC
+    LIMIT 10 OFFSET 0
+    """
+    val = (busqueda, busqueda)
+
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
+
+    finally:
+        cursor.close()
+
+    return make_response(jsonify(registros))
+
+
+@app.route("/laboratorio", methods=["POST"])
+def guardarLaboratorio():
+    if not con.is_connected():
+        con.reconnect()
+        
+    idHora = request.form.get("idHora")
+    hora = request.form["hora"]
+    categoria = request.form["categoria"]
+
+    cursor = con.cursor()
+
+    if idHora:
+        sql = """
+        UPDATE Hora_Lab
+        SET Hora = %s,
+            Categoria = %s
+        WHERE Id_Hora = %s
+        """
+        val = (hora, categoria, idHora)
+    else:
+        sql = """
+        INSERT INTO Hora_Lab (Hora, Categoria)
+        VALUES (%s, %s)
+        """
+        val = (hora, categoria)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    pusherLaboratorio() 
+
+    return make_response(jsonify({}))
+
+
+@app.route("/laboratorio/<int:id>")
+def editarLaboratorio(id):
+    if not con.is_connected():
+        con.reconnect()
+        
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT Id_Hora, Hora, Categoria
+    FROM Hora_Lab
+    WHERE Id_Hora = %s
+    """
+    val = (id,)
+
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
+
+    return make_response(jsonify(registros))
+
+
+@app.route("/laboratorios/eliminar", methods=["POST"])
+def eliminarLaboratorio():
+    try:
+        if not con.is_connected():
+            con.reconnect()
+        cursor = con.cursor()
+
+        idHora = request.form.get("id")
+
+        sql = "DELETE FROM Hora_Lab WHERE Id_Hora = %s"
+        val = (idHora,)
+
+        cursor.execute(sql, val)
+        con.commit()
+        con.close()
+
+        pusherLaboratorio()
+
+        return make_response(jsonify({"status": "ok"}))
+
+    except Exception as e:
+        print("Error eliminando registro en Hora_Lab:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
