@@ -225,7 +225,7 @@ def buscarLaboratorios():
     return make_response(jsonify(registros))
 
 
-@app.route("/laboratorio", methods=["POST"])
+@app.route("/laboratorios", methods=["POST"])
 def guardarLaboratorio():
     if not con.is_connected():
         con.reconnect()
@@ -303,3 +303,4 @@ def eliminarLaboratorio():
     except Exception as e:
         print("Error eliminando registro en Hora_Lab:", e)
         return make_response(jsonify({"error": str(e)}), 500)
+
