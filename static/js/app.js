@@ -51,7 +51,31 @@ let diffMs = 0
 
 const app = angular.module("angularjsApp", ["ngRoute"])
 
-app.config(function ($routeProvider, $locationProvider) {
+app.config(function ($routeProvider, $locationProvider, $provide) {
+    $provide.decorator("MensajesService", function ($delegate, $log) {
+        const originalModal = $delegate.modal
+        const originalPop   = $delegate.pop
+        const originalToast = $delegate.toast
+
+        $delegate.modal = function (msg) {
+            originalModal(msg, "Mensaje", [
+                {"html": "Aceptar", "class": "btn btn-lg btn-secondary", defaultButton: true, dismiss: true}
+            ])
+        }
+        $delegate.pop = function (msg) {
+            $(".div-temporal").remove()
+            $("body").prepend($("<div />", {
+                class: "div-temporal"
+            }))
+            originalPop(".div-temporal", msg, "info")
+        }
+        $delegate.toast = function (msg) {
+            originalToast(msg, 2)
+        }
+
+        return $delegate
+    })
+    
     $locationProvider.hashPrefix("")
 
     $routeProvider
@@ -596,7 +620,13 @@ app.factory("CategoriaFactory", function () {
     }
 })
 
-app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFactory) {
+app.service("MensajesService", function () {
+    this.modal = modal
+    this.pop   = pop
+    this.toast = toast
+})
+
+app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFactory, MensajesService) {
     $scope.SesionService = SesionService;
     // Función para cargar todas las horas
     function cargarHoras() {
@@ -641,7 +671,7 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
             return;
         }
 
-        $.get("/horas/buscar", { busqueda: busqueda }, function(registros) {
+        $.get("/laboratorio/buscar", { busqueda: busqueda }, function(registros) {
             let trsHTML = "";
             registros.forEach(hora => {
                 trsHTML += `
@@ -708,7 +738,7 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
             processData: false,
             contentType: false,
             success: function(response) {
-                console.log("✅ Hora guardada o actualizada correctamente");
+                MensajesService.pop("Has agregado un horario.")
                 $("#frmLaboratorio")[0].reset();
                 $("#idHora").val("");
                 cargarHoras();
