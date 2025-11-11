@@ -626,7 +626,50 @@ app.service("MensajesService", function () {
     this.toast = toast
 })
 
-app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFactory, MensajesService) {
+app.service("HoraAPI", function($q) {
+    this.obtenerHoras = function(id) {
+        var deferred = $q.defer();
+
+        $.get(`/laboratorio/${id}`) // tu endpoint Flask
+        .done(function(horas) {
+            deferred.resolve(horas);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+});
+
+app.service("CategoriaAPI", function($q) {
+    this.obtenerCategorias = function(categoria) {
+        var deferred = $q.defer();
+
+        $.get(`/laboratorio/categorias?categoria=${categoria}`) // si tuvieras endpoint /categorias
+        .done(function(categorias) {
+            deferred.resolve(categorias);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+});
+
+app.factory("LaboratorioFacade", function(HoraAPI, CategoriaAPI, $q) {
+    return {
+        obtenerDatosLaboratorio: function(id, categoria) {
+            return $q.all({
+                horas: HoraAPI.obtenerHoras(id),
+                categorias: CategoriaAPI.obtenerCategorias(categoria)
+            });
+        }
+    };
+});
+
+app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFactory, MensajesService, LaboratorioFacade) {
     $scope.SesionService = SesionService;
     // Función para cargar todas las horas
     function cargarHoras() {
@@ -753,6 +796,60 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         });
     });
 
+    $(document).on("click", ".btn-ver-laboratorio", function() {
+    const id = $(this).data("id");
+    const categoria = $(this).data("categoria");
+
+    LaboratorioFacade.obtenerDatosLaboratorio(id, categoria).then(function (datos) {
+        console.log("Horas:", datos.horas);
+        console.log("Categorías:", datos.categorias);
+
+        let horas = datos.horas; // array de horas
+        let categorias = datos.categorias; // array de categorías
+
+        let laboratorio = horas[0];
+        let html = `
+            <b>ID:</b> ${laboratorio.Id_Hora}<br>
+            <b>Hora:</b> ${laboratorio.Hora}<br>
+            <b>Categoría:</b> ${laboratorio.Categoria}<br>
+            <hr>
+            <h5>Otras horas en esta categoría:</h5>
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (let i in datos.horas) {
+            const hora = datos.horas[i];
+            html += `
+                <tr>
+                    <td>${parseInt(i) + 1}</td>
+                    <td>${hora.Hora}</td>
+                </tr>
+            `;
+        }
+
+        html += `
+                </tbody>
+            </table>
+        `;
+
+        // Si tienes un modal de mensajes como el del profe:
+        MensajesService.modal(html);
+
+        // O si solo quieres mostrarlo en un contenedor:
+        // $("#detalleLaboratorio").html(html);
+    })
+    .catch(function (error) {
+        console.error("Error al obtener el laboratorio:", error);
+    })
+    })
+
     // Eliminar una hora
     $(document).on("click", "#tbodylaboratorio .btn-eliminar", function() {
         const id = $(this).data("id");
@@ -781,6 +878,7 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         btnGuardar.removeClass("btn-primary").addClass("btn-success");
     });
     
+    
 
 })
 
@@ -788,4 +886,3 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
