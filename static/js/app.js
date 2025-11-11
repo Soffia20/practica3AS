@@ -630,7 +630,7 @@ app.service("HoraAPI", function($q) {
     this.obtenerHoras = function(id) {
         var deferred = $q.defer();
 
-        $.get(`/laboratorio/${id}`) // tu endpoint Flask
+        $.get(`/laboratorioS/${id}`) // tu endpoint Flask
         .done(function(horas) {
             deferred.resolve(horas);
         })
@@ -886,3 +886,4 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
