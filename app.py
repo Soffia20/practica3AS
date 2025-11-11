@@ -231,8 +231,8 @@ def guardarLaboratorio():
         con.reconnect()
         
     idHora = request.form.get("idHora")
-    hora = request.form["hora"]
-    categoria = request.form["categoria"]
+    Hora = request.form["hora"]
+    Categoria = request.form["categoria"]
 
     cursor = con.cursor()
 
@@ -243,13 +243,13 @@ def guardarLaboratorio():
             Categoria = %s
         WHERE Id_Hora = %s
         """
-        val = (hora, categoria, idHora)
+        val = (Hora, Categoria, idHora)
     else:
         sql = """
         INSERT INTO Hora_Lab (Hora, Categoria)
         VALUES (%s, %s)
         """
-        val = (hora, categoria)
+        val = (Hora, Categoria)
 
     cursor.execute(sql, val)
     con.commit()
