@@ -681,9 +681,10 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
     $(document).on("submit", "#frmLaboratorio", function(event) {
         event.preventDefault();
 
-        
+        // const Id_Hora = $("#idHora").val(); 
+
         // $.post("/laboratorios", {
-        //     Id_Hora: $("#idHora").val(),
+        //     Id_Hora: Id_Hora,
         //     Hora: $("#txtHora").val(),
         //     Categoria: $("#txtCategoria").val()
         // }, function(response) {
@@ -697,8 +698,9 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         //     btnGuardar.removeClass("btn-success").addClass("btn-primary");
         // }).fail(function(xhr) {
         //     console.error("Error al guardar/actualizar hora:", xhr.responseText);
-        // });
-
+        // }); 
+        const formData = new FormData(this);
+        
         $.ajax({
             url: "/laboratorios",
             type: "POST",
