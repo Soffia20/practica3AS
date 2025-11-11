@@ -3,8 +3,12 @@
     <td>{{ hora.Id_Hora }}</td>
     <td>{{ hora.Hora }}</td>
     <td>{{ hora.Categoria }}</td>
-    <td><button class="btn btn-danger btn-eliminar" data-id="{{ hora.Id_Hora }}">Eliminar</button></td>
-    <td><button class="btn btn-warning btn-modificar" data-id="{{ hora.Id_Hora }}">Modificar</button></td>
-    <td><button class="btn btn-primary btn-ver-laboratorio" data-id="{{ hora.Id_Hora }}" data-categoria="{{ hora.Categoria }}">Ver</button></td>
+    <td>
+        <div class="btn-group" role="group" aria-label="Acciones">
+            <button class="btn btn-danger btn-sm btn-eliminar" data-id="{{ hora.Id_Hora }}">Eliminar</button>
+            <button class="btn btn-warning btn-sm btn-modificar" data-id="{{ hora.Id_Hora }}">Modificar</button>
+            <button class="btn btn-primary btn-sm btn-ver-laboratorio" data-id="{{ hora.Id_Hora }}" data-categoria="{{ hora.Categoria }}">Ver</button>
+        </div>
+    </td>
 </tr>
 {% endfor %}
