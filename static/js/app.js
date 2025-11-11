@@ -813,12 +813,13 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
             <b>Hora:</b> ${laboratorio.Hora}<br>
             <b>Categoría:</b> ${laboratorio.Categoria}<br>
             <hr>
-            <h5>Otras horas en esta categoría:</h5>
+            <h5>Horario:</h5>
             <table class="table table-sm table-bordered">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Hora</th>
+                        <th>Categoría</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -886,6 +887,5 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
 
 
