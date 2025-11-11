@@ -681,10 +681,9 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
     $(document).on("submit", "#frmLaboratorio", function(event) {
         event.preventDefault();
 
-        const idHora = $("#idHora").val();
 
         $.post("/laboratorios", {
-            Id_Hora: idHora,
+            Id_Hora: $("#idHora").val(),
             Hora: $("#txtHora").val(),
             Categoria: $("#txtCategoria").val()
         }, function(response) {
@@ -699,6 +698,11 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         }).fail(function(xhr) {
             console.error("Error al guardar/actualizar hora:", xhr.responseText);
         });
+        console.log("Datos que se enviarán:", datos);
+
+        $.post("guardarHora", datos)
+        .done((resp) => console.log("Respuesta del servidor:", resp))
+        .fail((err) => console.error("Error:", err));
     });
 
     // Eliminar una hora
@@ -736,5 +740,3 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
-
