@@ -681,28 +681,44 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
     $(document).on("submit", "#frmLaboratorio", function(event) {
         event.preventDefault();
 
+        
+        // $.post("/laboratorios", {
+        //     Id_Hora: $("#idHora").val(),
+        //     Hora: $("#txtHora").val(),
+        //     Categoria: $("#txtCategoria").val()
+        // }, function(response) {
+        //     console.log("Hora guardada o actualizada correctamente");
+        //     $("#frmLaboratorio")[0].reset();
+        //     $("#idHora").val(""); // limpiar id oculto
+        //     cargarHoras();
 
-        $.post("/laboratorios", {
-            Id_Hora: $("#idHora").val(),
-            Hora: $("#txtHora").val(),
-            Categoria: $("#txtCategoria").val()
-        }, function(response) {
-            console.log("Hora guardada o actualizada correctamente");
-            $("#frmLaboratorio")[0].reset();
-            $("#idHora").val(""); // limpiar id oculto
-            cargarHoras();
+        //     const btnGuardar = $("#btnGuardar");
+        //     btnGuardar.text("Guardar");
+        //     btnGuardar.removeClass("btn-success").addClass("btn-primary");
+        // }).fail(function(xhr) {
+        //     console.error("Error al guardar/actualizar hora:", xhr.responseText);
+        // });
 
-            const btnGuardar = $("#btnGuardar");
-            btnGuardar.text("Guardar");
-            btnGuardar.removeClass("btn-success").addClass("btn-primary");
-        }).fail(function(xhr) {
-            console.error("Error al guardar/actualizar hora:", xhr.responseText);
+        $.ajax({
+            url: "/laboratorios",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log("✅ Hora guardada o actualizada correctamente");
+                $("#frmLaboratorio")[0].reset();
+                $("#idHora").val("");
+                cargarHoras();
+
+                const btnGuardar = $("#btnGuardar");
+                btnGuardar.text("Guardar");
+                btnGuardar.removeClass("btn-success").addClass("btn-primary");
+            },
+            error: function(xhr) {
+                console.error("❌ Error al guardar/actualizar hora:", xhr.responseText);
+            }
         });
-        console.log("Datos que se enviarán:", datos);
-
-        $.post("guardarHora", datos)
-        .done((resp) => console.log("Respuesta del servidor:", resp))
-        .fail((err) => console.error("Error:", err));
     });
 
     // Eliminar una hora
