@@ -808,10 +808,12 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
         let categorias = datos.categorias; // array de categorías
 
         let laboratorio = horas[0];
+        let cat = categorias[0];
+
         let html = `
             <b>ID:</b> ${laboratorio.Id_Hora}<br>
             <b>Hora:</b> ${laboratorio.Hora}<br>
-            <b>Categoría:</b> ${laboratorio.Categoria}<br>
+            <b>Categoría:</b> ${cat.Categoria}<br>
             <hr>
             <h5>Horario:</h5>
             <table class="table table-sm table-bordered">
