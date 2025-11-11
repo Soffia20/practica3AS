@@ -738,7 +738,7 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
             processData: false,
             contentType: false,
             success: function(response) {
-                MensajesService.pop("Has agregado un horario.")
+                MensajesService.toast("Has agregado un horario.")
                 $("#frmLaboratorio")[0].reset();
                 $("#idHora").val("");
                 cargarHoras();
@@ -788,3 +788,4 @@ app.controller("laboratorioCtrl", function ($scope, SesionService, CategoriaFact
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
