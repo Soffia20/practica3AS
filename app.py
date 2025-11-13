@@ -304,3 +304,139 @@ def eliminarLaboratorio():
         print("Error eliminando registro en Hora_Lab:", e)
         return make_response(jsonify({"error": str(e)}), 500)
 
+@app.route("/estudiantes")
+@login
+def estudiantes():
+    return render_template("Estudiantes.html")
+
+@app.route("/tbodyEstudiantes")
+@login
+def tbodyEstudiantes():
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT Id_Estudiante,
+           Nombre,
+           Matricula
+    FROM Estudiantes
+    ORDER BY Id_Estudiante DESC
+    LIMIT 10 OFFSET 0
+    """
+    cursor.execute(sql)
+    registros = cursor.fetchall()
+    return render_template("tbodyEstudiantes.html", estudiantes=registros)
+
+
+@app.route("/estudiantes/buscar", methods=["GET"])
+def buscarLaboratorios():
+    if not con.is_connected():
+        con.reconnect()
+
+    args = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
+
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT Id_Hora, Hora, Categoria
+    FROM Hora_Lab
+    WHERE Hora LIKE %s
+       OR Categoria LIKE %s
+    ORDER BY Id_Hora DESC
+    LIMIT 10 OFFSET 0
+    """
+    val = (busqueda, busqueda)
+
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
+
+    finally:
+        cursor.close()
+
+    return make_response(jsonify(registros))
+
+
+@app.route("/estudiantes", methods=["POST"])
+def guardarEstudiantes():
+    if not con.is_connected():
+        con.reconnect()
+        
+    IdEstudiante = request.form.get("IdEstudiante")
+    Matricula = request.form["Matricula"]
+    Nombre = request.form["Nombre"]
+
+    cursor = con.cursor()
+
+    if IdEstudiante:
+        sql = """
+        UPDATE Estudiantes
+        SET Nombre = %s,
+            Matricula = %s
+        WHERE Id_Estudiante = %s
+        """
+        val = (Nombre, Matricula, IdEstudiante)
+    else:
+        sql = """
+        INSERT INTO Estudiantes (Nombre, Matricula)
+        VALUES (%s, %s)
+        """
+        val = (Nombre, Matricula)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    pusherLaboratorio() 
+
+    return make_response(jsonify({}))
+
+
+@app.route("/estudiantes/<int:id>")
+def editarLaboratorio(IdEstudiante):
+    if not con.is_connected():
+        con.reconnect()
+        
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT Id_Estudiante, Nombre, Matricula
+    FROM Estudiantes
+    WHERE Id_Estudiante = %s
+    """
+    val = (IdEstudiante)
+
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
+
+    return make_response(jsonify(registros))
+
+
+@app.route("/estudiantes/eliminar", methods=["POST"])
+def eliminarEstudiantes():
+    try:
+        if not con.is_connected():
+            con.reconnect()
+        cursor = con.cursor()
+
+        IdEstudiante = request.form.get("IdEstudiante")
+
+        sql = "DELETE FROM Estudiantes WHERE Id_Estudiante = %s"
+        val = (IdEstudiante,)
+
+        cursor.execute(sql, val)
+        con.commit()
+        con.close()
+
+        pusherLaboratorio()
+
+        return make_response(jsonify({"status": "ok"}))
+
+    except Exception as e:
+        print("Error eliminando registro en Estudiantes:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
