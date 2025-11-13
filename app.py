@@ -348,7 +348,10 @@ def tbodyEstudiantes():
     sql    = """
     SELECT Id_Estudiante,
            Nombre,
-           Matricula
+           Matricula,
+           Carrera,
+           Correo,
+           Telefono
     FROM Estudiantes
     ORDER BY Id_Estudiante DESC
     LIMIT 10 OFFSET 0
@@ -369,7 +372,7 @@ def buscarEstudiantes():
 
     cursor = con.cursor(dictionary=True)
     sql = """
-    SELECT Id_Estudiante, Nombre, Matricula
+    SELECT Id_Estudiante, Nombre, Matricula, Carrera, Correo, Telefono
     FROM Estudiantes
     WHERE Nombre LIKE %s
        OR Matricula LIKE %s
@@ -401,6 +404,10 @@ def guardarEstudiantes():
     IdEstudiante = request.form.get("IdEstudiante")
     Nombre = request.form["nombre"]
     Matricula = request.form["matricula"]
+    Carrera = request.form["carerra"]
+    Correo = request.form["correo"]
+    Telefono = request.form["telefono"]
+
 
     cursor = con.cursor()
 
@@ -408,16 +415,19 @@ def guardarEstudiantes():
         sql = """
         UPDATE Estudiantes
         SET Nombre = %s,
-            Matricula = %s
+            Matricula = %s,
+            Carrera = %s,
+            Correo = %s,
+            Telefono = %s
         WHERE Id_Estudiante = %s
         """
-        val = (Nombre, Matricula, IdEstudiante)
+        val = (Nombre, Matricula, Carrera, Correo, Telefono, IdEstudiante)
     else:
         sql = """
-        INSERT INTO Estudiantes (Nombre, Matricula)
+        INSERT INTO Estudiantes (Nombre, Matricula, Carrera, Correo, Telefono)
         VALUES (%s, %s)
         """
-        val = (Nombre, Matricula)
+        val = (Nombre, Matricula, Carrera, Correo, Telefono)
 
     cursor.execute(sql, val)
     con.commit()
@@ -435,7 +445,7 @@ def editarEstudiantes(id):
         
     cursor = con.cursor(dictionary=True)
     sql = """
-    SELECT Id_Estudiante, Nombre, Matricula
+    SELECT Id_Estudiante, Nombre, Matricula, Carrera, Correo, Telefono
     FROM Estudiantes
     WHERE Id_Estudiante = %s
     """
@@ -471,4 +481,3 @@ def eliminarEstudiantes():
     except Exception as e:
         print("Error eliminando registro en Estudiantes:", e)
         return make_response(jsonify({"error": str(e)}), 500)
-
