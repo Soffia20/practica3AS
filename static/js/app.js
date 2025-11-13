@@ -903,8 +903,8 @@
         var pusher = new Pusher("b51b00ad61c8006b2e6f", {
         cluster: "us2"
         })
-        var channel = pusher.subscribe("canallaboratorio")
-        channel.bind("eventolaboratorio", function(data) {
+        var channel = pusher.subscribe("canalestudiantes")
+        channel.bind("eventoestudiantes", function(data) {
             cargarEstudiantes()
         })
 
