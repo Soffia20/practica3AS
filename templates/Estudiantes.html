@@ -1,0 +1,35 @@
+<form id="frmEstudiantes" method="post">
+
+    <input type="hidden" id="IdEstudiante" name="IdEstudiante">
+
+    <div class="mb-1">
+        <label>Nombre</label>
+        <input type="text" class="form-control" id="txtNombre" name="nombre">
+    </div>
+        <div class="mb-1">
+        <label>Matricula</label>
+        <input type="text" class="form-control" id="txtMatricula" name="matricula">
+    </div>
+    <div class="mb-1 text-end">
+        <button type="submit" id="btnGuardar" class="btn btn-primary">Guardar</button>
+    </div>
+</form>
+
+<div class="mb-3 input-group">
+    <input type="text" class="form-control" id="txtBuscarMatricula" placeholder="Buscar matricula">
+    <button class="btn btn-secondary" id="btnBuscarMatricula" type="button">Buscar</button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-sm">
+        <thead class="table-active">
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Matricula</th>
+                <th>Funciones</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyEstudiantes"></tbody>
+    </table>
+</div>
