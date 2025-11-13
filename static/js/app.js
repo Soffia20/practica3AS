@@ -87,6 +87,10 @@
             templateUrl: "/laboratorio",
             controller: "laboratorioCtrl"
         })
+        .when("/estudiantes", {
+            templateUrl: "/estudiantes",
+            controller: "estudiantesCtrl"
+        })
         .otherwise({
             redirectTo: "/"
         })
@@ -868,6 +872,121 @@
 
         // Editar hora
         $(document).on("click", "#tbodylaboratorio .btn-editar", function() {
+            const id = $(this).data("id");
+            const hora = $(this).data("hora");
+            const categoria = $(this).data("categoria");
+
+            $("#idHora").val(id);
+            $("#txtHora").val(hora);
+            $("#txtCategoria").val(categoria);
+
+            const btnGuardar = $("#btnGuardar");
+            btnGuardar.text("Actualizar");
+            btnGuardar.removeClass("btn-primary").addClass("btn-success");
+        });
+        
+        
+
+    })
+
+    app.controller("estudiantesCtrl", function ($scope) {
+        // Función para cargar todas las horas
+        function cargarEstudiantes() {
+            $.get("/tbodyEstudiantes", function(trsHTML){
+                $("#tbodyEstudiantes").html(trsHTML)
+            })
+        }
+
+        cargarEstudiantes()
+
+        Pusher.logToConsole = true
+        var pusher = new Pusher("b51b00ad61c8006b2e6f", {
+        cluster: "us2"
+        })
+        var channel = pusher.subscribe("canallaboratorio")
+        channel.bind("eventolaboratorio", function(data) {
+            cargarEstudiantes()
+        })
+
+
+        // Buscar 
+        $(document).on("click", "#btnGuardar", function() {
+            const busqueda = $("#txtBuscarMatricula").val().trim();
+
+            if (busqueda === "") {
+                cargarEstudiantes();
+                return;
+            }
+        });
+
+        // Permitir Enter para buscar
+        $("#txtBuscarHora").on("keypress", function(e) {
+            if (e.which === 13) {
+                $("#btnBuscarMatricula").click();
+            }
+        });
+
+        // Agregar o actualizar una hora
+        $(document).on("submit", "#frmEstudiantes", function(event) {
+            event.preventDefault();
+
+            // const Id_Hora = $("#idHora").val(); 
+
+            // $.post("/laboratorios", {
+            //     Id_Hora: Id_Hora,
+            //     Hora: $("#txtHora").val(),
+            //     Categoria: $("#txtCategoria").val()
+            // }, function(response) {
+            //     console.log("Hora guardada o actualizada correctamente");
+            //     $("#frmLaboratorio")[0].reset();
+            //     $("#idHora").val(""); // limpiar id oculto
+            //     cargarEstudiantes();
+
+            //     const btnGuardar = $("#btnGuardar");
+            //     btnGuardar.text("Guardar");
+            //     btnGuardar.removeClass("btn-success").addClass("btn-primary");
+            // }).fail(function(xhr) {
+            //     console.error("Error al guardar/actualizar hora:", xhr.responseText);
+            // }); 
+            const formData = new FormData(this);
+            
+            $.ajax({
+                url: "/estudiante",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    MensajesService.toast("Has agregado un estudiante.")
+                    $("#frmEstudiantes")[0].reset();
+                    $("#IdEstudiante").val("");
+                    cargarEstudiantes();
+
+                    const btnGuardar = $("#btnGuardar");
+                    btnGuardar.text("Guardar");
+                    btnGuardar.removeClass("btn-success").addClass("btn-primary");
+                },
+                error: function(xhr) {
+                    console.error("❌ Error al guardar/actualizar:", xhr.responseText);
+                }
+            });
+        });
+
+        // Eliminar una hora
+        $(document).on("click", "#tbodyEstudiantes .btn-eliminar", function() {
+            const id = $(this).data("id");
+            if (confirm("¿Deseas eliminar este estudiante?")) {
+                $.post("/horas/eliminar", { id: id }, function(response) {
+                    console.log("Hora eliminada correctamente");
+                    cargarEstudiantes();
+                }).fail(function(xhr) {
+                    console.error("Error al eliminar hora:", xhr.responseText);
+                });
+            }
+        });
+
+        // Editar hora
+        $(document).on("click", "#tbodyEstudiantes .btn-editar", function() {
             const id = $(this).data("id");
             const hora = $(this).data("hora");
             const categoria = $(this).data("categoria");
