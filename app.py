@@ -358,7 +358,8 @@ def tbodyEstudiantes():
     """
     cursor.execute(sql)
     registros = cursor.fetchall()
-    return render_template("tbodyEstudiantes.html", estudiantes=registros)
+    cursor.close()
+    return make_response(jsonify(registros))
 
 
 @app.route("/estudiantes/buscar", methods=["GET"])
@@ -392,8 +393,8 @@ def buscarEstudiantes():
     finally:
         cursor.close()
         
-    return render_template("tbodyEstudiantes.html", estudiantes=registros)
-    # return make_response(jsonify(registros))
+    # return render_template("tbodyEstudiantes.html", estudiantes=registros)
+    return make_response(jsonify(registros))
 
 
 @app.route("/estudiantes", methods=["POST"])
@@ -404,7 +405,7 @@ def guardarEstudiantes():
     IdEstudiante = request.form.get("IdEstudiante")
     Nombre = request.form["nombre"]
     Matricula = request.form["matricula"]
-    Carrera = request.form["carerra"]
+    Carrera = request.form["carrera"]
     Correo = request.form["correo"]
     Telefono = request.form["telefono"]
 
