@@ -145,7 +145,7 @@ def preferencias():
         "usuario": session.get("login-usr"),
         "tipo": session.get("login-tipo", 2)
     }))
-@app.route("/app/log", methods=["GET"])
+@app.route("/log", methods=["GET"])
 def logEstudiantes():
     args         = request.args
     actividad    = args["actividad"]
@@ -471,3 +471,4 @@ def eliminarEstudiantes():
     except Exception as e:
         print("Error eliminando registro en Estudiantes:", e)
         return make_response(jsonify({"error": str(e)}), 500)
+
