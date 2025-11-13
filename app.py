@@ -145,6 +145,22 @@ def preferencias():
         "usuario": session.get("login-usr"),
         "tipo": session.get("login-tipo", 2)
     }))
+@app.route("/app/log", methods=["GET"])
+def logEstudiantes():
+    args         = request.args
+    actividad    = args["actividad"]
+    descripcion  = args["descripcion"]
+    tz           = pytz.timezone("America/Matamoros")
+    ahora        = datetime.datetime.now(tz)
+    fechaHoraStr = ahora.strftime("%Y-%m-%d %H:%M:%S")
+
+    with open("log-busquedas.txt", "a") as f:
+        f.write(f"{actividad}\t{descripcion}\t{fechaHoraStr}\n")
+
+    with open("log-busquedas.txt") as f:
+        log = f.read()
+
+    return log
 
 # lab
 @app.route("/laboratorio")
