@@ -372,8 +372,9 @@ def buscarEstudiantes():
 
     finally:
         cursor.close()
-
-    return make_response(jsonify(registros))
+        
+    return render_template("tbodyEstudiantes.html", estudiantes=registros)
+    # return make_response(jsonify(registros))
 
 
 @app.route("/estudiantes", methods=["POST"])
