@@ -39,6 +39,20 @@ def pusherLaboratorio():
     )
     
     pusher_client.trigger("canallaboratorio", "eventolaboratorio", {"message": "Hola Mundo!"})
+    
+def pusherEstudiantes():
+    import pusher
+    
+    pusher_client = pusher.Pusher(
+    app_id="2046017",
+    key="b51b00ad61c8006b2e6f",
+    secret="d2ec35aa5498a18af7bf",
+    cluster="us2",
+    ssl=True
+    )
+    
+    pusher_client.trigger("canalestudiantes", "eventoestudiantes", {"message": "Actualización en Estudiantes"})
+    
 
 
 def login(fun):
@@ -368,8 +382,8 @@ def guardarEstudiantes():
         con.reconnect()
         
     IdEstudiante = request.form.get("IdEstudiante")
-    Matricula = request.form["Matricula"]
-    Nombre = request.form["Nombre"]
+    Nombre = request.form["nombre"]
+    Matricula = request.form["matricula"]
 
     cursor = con.cursor()
 
@@ -392,13 +406,13 @@ def guardarEstudiantes():
     con.commit()
     con.close()
 
-    pusherLaboratorio() 
+    pusherEstudiantes() 
 
     return make_response(jsonify({}))
 
 
 @app.route("/estudiantes/<int:id>")
-def editarEstudiantes(IdEstudiante):
+def editarEstudiantes(id):
     if not con.is_connected():
         con.reconnect()
         
@@ -408,7 +422,7 @@ def editarEstudiantes(IdEstudiante):
     FROM Estudiantes
     WHERE Id_Estudiante = %s
     """
-    val = (IdEstudiante)
+    val = (id,)
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
@@ -433,7 +447,7 @@ def eliminarEstudiantes():
         con.commit()
         con.close()
 
-        pusherLaboratorio()
+        pusherEstudiantes()
 
         return make_response(jsonify({"status": "ok"}))
 
