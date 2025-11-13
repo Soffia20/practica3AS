@@ -15,8 +15,12 @@
     </div>
 </form>
 
+<div class="input-group">
+    <input type="text" id="totalEstudiantes" name="totalEstudiantes" class="form-control text-end" style="border: none !important;" ng-model="totalEstudiantes" readonly>
+    <span>&nbsp;estudiante(s)</span>
+</div>
 <div class="mb-3 input-group">
-    <input type="text" class="form-control" id="txtBuscarMatricula" placeholder="Buscar matricula">
+    <input type="text" class="form-control" id="txtBuscarMatricula" ng-model="busqueda" placeholder="Buscar nombre">
     <button class="btn btn-secondary" id="btnBuscarMatricula" type="button">Buscar</button>
 </div>
 
