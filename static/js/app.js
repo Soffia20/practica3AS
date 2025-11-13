@@ -932,6 +932,15 @@
             }
         });
 
+        $scope.$watch("busqueda", function(newVal, oldVal) {
+            if (newVal != oldVal) {
+                $.get("log", {
+                    actividad: "Búsqueda de estudiantes",
+                    descripcion: `Se realizo una búsqueda de estudiantes "${newVal}"`
+                })
+            }
+        })
+
         // $(document).on("click", "#btnGuardar", function() {
         //     const busqueda = $("#txtBuscarMatricula").val().trim();
 
