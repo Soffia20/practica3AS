@@ -426,7 +426,7 @@ def guardarEstudiantes():
     else:
         sql = """
         INSERT INTO Estudiantes (Nombre, Matricula, Carrera, Correo, Telefono)
-        VALUES (%s, %s)
+        VALUES (%s, %s, %s, %s, %s)
         """
         val = (Nombre, Matricula, Carrera, Correo, Telefono)
 
@@ -482,3 +482,4 @@ def eliminarEstudiantes():
     except Exception as e:
         print("Error eliminando registro en Estudiantes:", e)
         return make_response(jsonify({"error": str(e)}), 500)
+
