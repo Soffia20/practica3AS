@@ -908,23 +908,45 @@
             cargarEstudiantes()
         })
 
-
-        // Buscar 
-        $(document).on("click", "#btnGuardar", function() {
+        
+        // Buscar estudiantes (recibe HTML del backend)
+        $(document).on("click", "#btnBuscarMatricula", function() {
             const busqueda = $("#txtBuscarMatricula").val().trim();
 
             if (busqueda === "") {
                 cargarEstudiantes();
                 return;
             }
+
+            $.get("/estudiantes/buscar", { busqueda: busqueda }, function(trsHTML) {
+                $("#tbodyEstudiantes").html(trsHTML);
+            }).fail(function(xhr) {
+                console.error("❌ Error al buscar estudiantes:", xhr.responseText);
+            });
         });
 
         // Permitir Enter para buscar
-        $("#txtBuscarHora").on("keypress", function(e) {
+        $("#txtBuscarMatricula").on("keypress", function(e) {
             if (e.which === 13) {
                 $("#btnBuscarMatricula").click();
             }
         });
+
+        // $(document).on("click", "#btnGuardar", function() {
+        //     const busqueda = $("#txtBuscarMatricula").val().trim();
+
+        //     if (busqueda === "") {
+        //         cargarEstudiantes();
+        //         return;
+        //     }
+        // });
+
+        // Permitir Enter para buscar
+        // $("#txtBuscarMatricula").on("keypress", function(e) {
+        //     if (e.which === 13) {
+        //         $("#btnBuscarMatricula").click();
+        //     }
+        // });
 
         // Agregar o actualizar una hora
         $(document).on("submit", "#frmEstudiantes", function(event) {
