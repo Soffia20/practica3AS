@@ -329,7 +329,7 @@ def tbodyEstudiantes():
 
 
 @app.route("/estudiantes/buscar", methods=["GET"])
-def buscarLaboratorios():
+def buscarEstudiantes():
     if not con.is_connected():
         con.reconnect()
 
@@ -339,11 +339,11 @@ def buscarLaboratorios():
 
     cursor = con.cursor(dictionary=True)
     sql = """
-    SELECT Id_Hora, Hora, Categoria
-    FROM Hora_Lab
-    WHERE Hora LIKE %s
-       OR Categoria LIKE %s
-    ORDER BY Id_Hora DESC
+    SELECT Id_Estudiante, Nombre, Matricula
+    FROM Estudiantes
+    WHERE Nombre LIKE %s
+       OR Matricula LIKE %s
+    ORDER BY Id_Estudiante DESC
     LIMIT 10 OFFSET 0
     """
     val = (busqueda, busqueda)
@@ -398,7 +398,7 @@ def guardarEstudiantes():
 
 
 @app.route("/estudiantes/<int:id>")
-def editarLaboratorio(IdEstudiante):
+def editarEstudiantes(IdEstudiante):
     if not con.is_connected():
         con.reconnect()
         
