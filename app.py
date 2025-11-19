@@ -92,7 +92,8 @@ def appLogin():
 def fechaHora():
     tz    = pytz.timezone("America/Matamoros")
     ahora = datetime.datetime.now(tz)
-    return ahora.strftime("%Y-%m-%d %H:%M:%S")
+    return ahora.replace(tzinfo=None)
+    # return ahora.strftime("%Y-%m-%d %H:%M:%S")
 
 @app.route("/iniciarSesion", methods=["POST"])
 # Usar cuando solo se quiera usar CORS en rutas específicas
@@ -482,4 +483,208 @@ def eliminarEstudiantes():
     except Exception as e:
         print("Error eliminando registro en Estudiantes:", e)
         return make_response(jsonify({"error": str(e)}), 500)
+    
+@app.route("/acceso")
+@login
+def acceso():
+    return render_template("Acceso.html")
 
+@app.route("/api/acceso/commands/entrada", methods=["POST"])
+@login
+def registrar_entrada():
+    if not con.is_connected():
+        con.reconnect()
+
+    data = request.get_json()
+    id_est = data.get("Id_Estudiante")
+    id_lab = data.get("Id_Laboratorio")
+
+    if not id_est or not id_lab:
+        return make_response(jsonify({
+            "ok": False,
+            "error": "Id_Estudiante e Id_Laboratorio son obligatorios"
+        }), 400)
+
+    try:
+        cursor = con.cursor(dictionary=True)
+
+        # Validar que el estudiante exista
+        cursor.execute("""
+            SELECT Id_Estudiante
+            FROM Estudiantes
+            WHERE Id_Estudiante = %s
+        """, (id_est,))
+        existe = cursor.fetchone()
+        if not existe:
+            cursor.close()
+            return make_response(jsonify({
+                "ok": False,
+                "error": "El estudiante no existe"
+            }), 400)
+
+        fecha_entrada = fechaHora()
+
+        cursor.execute("""
+            INSERT INTO Accesos (Id_Estudiante, Id_Laboratorio, FechaHora_Entrada, Tipo)
+            VALUES (%s, %s, %s, 'ENTRADA')
+        """, (id_est, id_lab, fecha_entrada))
+
+        con.commit()
+        cursor.close()
+
+        return make_response(jsonify({
+            "ok": True,
+            "msg": "Entrada registrada correctamente",
+            "fechaHoraEntrada": fecha_entrada.strftime("%Y-%m-%d %H:%M:%S")
+        }))
+
+    except Exception as e:
+        print("Error en /api/acceso/commands/entrada:", e)
+        con.rollback()
+        return make_response(jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500)
+
+@app.route("/api/acceso/commands/salida", methods=["POST"])
+@login
+def registrar_salida():
+    if not con.is_connected():
+        con.reconnect()
+
+    data = request.get_json()
+    id_est = data.get("Id_Estudiante")
+    id_lab = data.get("Id_Laboratorio")
+
+    if not id_est or not id_lab:
+        return make_response(jsonify({
+            "ok": False,
+            "error": "Id_Estudiante e Id_Laboratorio son obligatorios"
+        }), 400)
+
+    try:
+        cursor = con.cursor(dictionary=True)
+
+        # Buscar el último acceso sin salida
+        cursor.execute("""
+            SELECT Id_Acceso
+            FROM Accesos
+            WHERE Id_Estudiante = %s
+              AND Id_Laboratorio = %s
+              AND FechaHora_Salida IS NULL
+            ORDER BY FechaHora_Entrada DESC
+            LIMIT 1
+        """, (id_est, id_lab))
+
+        acceso = cursor.fetchone()
+        if not acceso:
+            cursor.close()
+            return make_response(jsonify({
+                "ok": False,
+                "error": "No hay una ENTRADA abierta para este estudiante en este laboratorio"
+            }), 400)
+
+        id_acceso = acceso["Id_Acceso"]
+        fecha_salida = fechaHora()
+
+        cursor.execute("""
+            UPDATE Accesos
+            SET FechaHora_Salida = %s,
+                Tipo = 'SALIDA'
+            WHERE Id_Acceso = %s
+        """, (fecha_salida, id_acceso))
+
+        con.commit()
+        cursor.close()
+
+        return make_response(jsonify({
+            "ok": True,
+            "msg": "Salida registrada correctamente",
+            "Id_Acceso": id_acceso,
+            "fechaHoraSalida": fecha_salida.strftime("%Y-%m-%d %H:%M:%S")
+        }))
+
+    except Exception as e:
+        print("Error en /api/acceso/commands/salida:", e)
+        con.rollback()
+        return make_response(jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500)
+
+@app.route("/api/acceso/commands/eliminar", methods=["POST"])
+@login
+def eliminar_acceso():
+    if not con.is_connected():
+        con.reconnect()
+
+    id_acceso = request.form.get("idAcceso")
+
+    if not id_acceso:
+        return make_response(jsonify({
+            "ok": False,
+            "error": "Se requiere idAcceso"
+        }), 400)
+
+    try:
+        cursor = con.cursor()
+
+        sql = "DELETE FROM Accesos WHERE Id_Acceso = %s"
+        val = (id_acceso,)
+
+        cursor.execute(sql, val)
+        con.commit()
+        borrados = cursor.rowcount
+        cursor.close()
+
+        if borrados == 0:
+            return make_response(jsonify({
+                "ok": False,
+                "error": "Acceso no encontrado"
+            }), 404)
+
+        return make_response(jsonify({
+            "ok": True,
+            "msg": "Acceso eliminado"
+        }))
+
+    except Exception as e:
+        print("Error en /api/acceso/commands/eliminar:", e)
+        con.rollback()
+        return make_response(jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500)
+
+@app.route("/api/acceso/queries/todos", methods=["GET"])
+@login
+def listar_acceso():
+    if not con.is_connected():
+        con.reconnect()
+
+    try:
+        cursor = con.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT 
+                Id_Acceso,
+                Id_Estudiante,
+                Id_Laboratorio,
+                FechaHora_Entrada,
+                FechaHora_Salida,
+                Tipo
+            FROM Accesos
+            ORDER BY FechaHora_Entrada DESC
+            LIMIT 50
+        """)
+        registros = cursor.fetchall()
+        cursor.close()
+
+        return make_response(jsonify(registros))
+
+    except Exception as e:
+        print("Error en /api/acceso/queries/todos:", e)
+        return make_response(jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500)
