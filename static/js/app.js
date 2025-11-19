@@ -91,6 +91,10 @@
             templateUrl: "/estudiantes",
             controller: "estudiantesCtrl"
         })
+        .when("/acceso", {
+            templateUrl: "/acceso",
+            controller: "accesoCtrl"
+        })
         .otherwise({
             redirectTo: "/"
         })
@@ -1048,6 +1052,146 @@
     });
 
 });
+
+app.controller("accesoCtrl", function ($scope, MensajesService) {
+
+    // 1. Cargar todos los accesos (AQUÍ se ejecuta /api/accesos/queries/todos)
+    function cargarAccesos() {
+        $.get("/api/acceso/queries/todos", function (registros) {
+            let trsHTML = "";
+
+            registros.forEach(function (a) {
+                trsHTML += `
+                    <tr>
+                        <td>${a.Id_Acceso}</td>
+                        <td>${a.Id_Estudiante}</td>
+                        <td>${a.Id_Laboratorio}</td>
+                        <td>${a.FechaHora_Entrada}</td>
+                        <td>${a.FechaHora_Salida ?? ""}</td>
+                        <td>${a.Tipo}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm btn-eliminar-acceso" data-id="${a.Id_Acceso}">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $("#tbodyAcceso").html(trsHTML);
+        }).fail(function (xhr) {
+            console.error("❌ Error al cargar accesos:", xhr.responseText);
+        });
+    }
+
+    // Llamar al cargar la vista
+    cargarAccesos();
+
+
+    // 2. Registrar ENTRADA
+    $(document).off("click", "#btnEntrada").on("click", "#btnEntrada", function () {
+        const idEst = $("#IdEstudiante").val().trim();
+        const idLab = $("#IdLaboratorio").val().trim();
+
+        if (!idEst || !idLab) {
+            MensajesService.toast("Ingresa ID Estudiante e ID Laboratorio");
+            return;
+        }
+
+        disableAll();
+        $.ajax({
+            url: "/api/acceso/commands/entrada",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                Id_Estudiante: idEst,
+                Id_Laboratorio: idLab
+            }),
+            success: function (res) {
+                if (res.ok) {
+                    MensajesService.toast("Entrada registrada");
+                    $("#IdEstudiante").val("");
+                    $("#IdLaboratorio").val("");
+                    cargarAccesos();
+                } else {
+                    MensajesService.toast("Error: " + (res.error || "No se pudo registrar"));
+                }
+            },
+            error: function (xhr) {
+                console.error("❌ Error en entrada:", xhr.responseText);
+                MensajesService.toast("Error al registrar entrada");
+            },
+            complete: function () {
+                enableAll();
+            }
+        });
+    });
+
+    // 3. Registrar SALIDA
+    $(document).off("click", "#btnSalida").on("click", "#btnSalida", function () {
+        const idEst = $("#IdEstudiante").val().trim();
+        const idLab = $("#IdLaboratorio").val().trim();
+
+        if (!idEst || !idLab) {
+            MensajesService.toast("Ingresa ID Estudiante e ID Laboratorio");
+            return;
+        }
+
+        disableAll();
+        $.ajax({
+            url: "/api/acceso/commands/salida",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                Id_Estudiante: idEst,
+                Id_Laboratorio: idLab
+            }),
+            success: function (res) {
+                if (res.ok) {
+                    MensajesService.toast("Salida registrada");
+                    $("#IdEstudiante").val("");
+                    $("#IdLaboratorio").val("");
+                    cargarAccesos();
+                } else {
+                    MensajesService.toast("Error: " + (res.error || "No se pudo registrar"));
+                }
+            },
+            error: function (xhr) {
+                console.error("❌ Error en salida:", xhr.responseText);
+                MensajesService.toast("Error al registrar salida");
+            },
+            complete: function () {
+                enableAll();
+            }
+        });
+    });
+
+    // 4. Eliminar acceso (para completar CRUD)
+    $(document).off("click", ".btn-eliminar-acceso")
+    .on("click", ".btn-eliminar-acceso", function () {
+        const id = $(this).data("id");
+
+        if (!confirm("¿Deseas eliminar este registro de acceso?")) {
+            return;
+        }
+
+        disableAll();
+        $.post("/api/acceso/commands/eliminar", { idAcceso: id }, function (res) {
+            if (res.ok) {
+                MensajesService.toast("Acceso eliminado");
+                cargarAccesos();
+            } else {
+                MensajesService.toast("Error: " + (res.error || "No se pudo eliminar"));
+            }
+        }).fail(function (xhr) {
+            console.error("❌ Error al eliminar acceso:", xhr.responseText);
+        }).always(function () {
+            enableAll();
+        });
+    });
+
+});
+
 
     document.addEventListener("DOMContentLoaded", function (event) {
         activeMenuOption(location.hash)
