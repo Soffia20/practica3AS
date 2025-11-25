@@ -92,8 +92,8 @@ def appLogin():
 def fechaHora():
     tz    = pytz.timezone("America/Matamoros")
     ahora = datetime.datetime.now(tz)
-    return ahora.replace(tzinfo=None)
-    # return ahora.strftime("%Y-%m-%d %H:%M:%S")
+    return ahora.strftime("%Y-%m-%d %H:%M:%S")
+    # return ahora.replace(tzinfo=None)
 
 @app.route("/iniciarSesion", methods=["POST"])
 # Usar cuando solo se quiera usar CORS en rutas específicas
@@ -688,3 +688,4 @@ def listar_acceso():
             "ok": False,
             "error": str(e)
         }), 500)
+
