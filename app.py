@@ -92,8 +92,14 @@ def appLogin():
 def fechaHora():
     tz    = pytz.timezone("America/Matamoros")
     ahora = datetime.datetime.now(tz)    
+    return ahora.strftime("%Y-%m-%d %H:%M:%S")
+
+def obtener_fecha_hora():
+    tz    = pytz.timezone("America/Matamoros")
+    ahora = datetime.datetime.now(tz)
+    # MySQL normalmente NO acepta datetime con tzinfo
     return ahora.replace(tzinfo=None)
-    # return ahora.strftime("%Y-%m-%d %H:%M:%S")
+
 
 @app.route("/iniciarSesion", methods=["POST"])
 # Usar cuando solo se quiera usar CORS en rutas específicas
@@ -522,7 +528,7 @@ def registrar_entrada():
                 "error": "El estudiante no existe"
             }), 400)
 
-        fecha_entrada = fechaHora()
+        fecha_entrada = obtener_fecha_hora()
 
         cursor.execute("""
             INSERT INTO Accesos (Id_Estudiante, Id_Laboratorio, FechaHora_Entrada, Tipo)
@@ -585,7 +591,7 @@ def registrar_salida():
             }), 400)
 
         id_acceso = acceso["Id_Acceso"]
-        fecha_salida = fechaHora()
+        fecha_salida = obtener_fecha_hora()
 
         cursor.execute("""
             UPDATE Accesos
@@ -688,5 +694,4 @@ def listar_acceso():
             "ok": False,
             "error": str(e)
         }), 500)
-
 
